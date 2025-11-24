@@ -3,87 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TaskVoice</title>
+    <title>TaskVoice - Voice Task Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <style>
-        @keyframes pulse-ring {
-            0% { transform: scale(0.95); opacity: 1; }<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voice Task Manager</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <style>
-        @keyframes pulse-ring {
-            0% { transform: scale(0.8); opacity: 1; }
-            100% { transform: scale(1.4); opacity: 0; }
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        border: "hsl(240 5.9% 10%)",
+                        input: "hsl(240 5.9% 10%)",
+                        ring: "hsl(263 70% 50%)",
+                        background: "hsl(240 10% 3.9%)",
+                        foreground: "hsl(0 0% 98%)",
+                        primary: {
+                            DEFAULT: "hsl(263 70% 50%)",
+                            foreground: "hsl(0 0% 100%)",
+                        },
+                        secondary: {
+                            DEFAULT: "hsl(240 4.8% 95.9%)",
+                            foreground: "hsl(240 5.9% 10%)",
+                        },
+                        destructive: {
+                            DEFAULT: "hsl(0 84.2% 60.2%)",
+                            foreground: "hsl(0 0% 98%)",
+                        },
+                        muted: {
+                            DEFAULT: "hsl(240 3.7% 15.9%)",
+                            foreground: "hsl(240 5% 64.9%)",
+                        },
+                        accent: {
+                            DEFAULT: "hsl(263 70% 50%)",
+                            foreground: "hsl(0 0% 98%)",
+                        },
+                        popover: {
+                            DEFAULT: "hsl(240 10% 3.9%)",
+                            foreground: "hsl(0 0% 98%)",
+                        },
+                        card: {
+                            DEFAULT: "hsl(240 10% 3.9%)",
+                            foreground: "hsl(0 0% 98%)",
+                        },
+                        purple: {
+                            500: "hsl(263 70% 50%)",
+                            600: "hsl(263 70% 45%)",
+                            700: "hsl(263 70% 40%)",
+                        },
+                        blue: {
+                            500: "hsl(217 91% 60%)",
+                            600: "hsl(217 91% 55%)",
+                        },
+                        green: {
+                            500: "hsl(142 76% 36%)",
+                            600: "hsl(142 76% 31%)",
+                        },
+                        yellow: {
+                            500: "hsl(48 96% 53%)",
+                            600: "hsl(48 96% 48%)",
+                        },
+                        red: {
+                            500: "hsl(0 84% 60%)",
+                            600: "hsl(0 84% 55%)",
+                            700: "hsl(0 84% 50%)",
+                        },
+                    },
+                    borderRadius: {
+                        lg: "0.75rem",
+                        md: "0.5rem",
+                        sm: "0.375rem",
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                }
+            }
         }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * {
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 1; }
+            100% { transform: scale(1.3); opacity: 0; }
+        }
+        
         .pulse-ring {
             animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
         }
         
-        /* Glassmorphism effect */
-        .glass {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .glass-dark {
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        
-        /* Gradient text */
-        .gradient-text {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        
         /* Custom scrollbar */
         ::-webkit-scrollbar {
-            width: 8px;
+            width: 6px;
         }
+        
         ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
+            background: hsl(240 3.7% 15.9%);
         }
+        
         ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
+            background: hsl(240 5% 26%);
+            border-radius: 3px;
         }
+        
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.3);
+            background: hsl(240 5% 34%);
+        }
+        
+        body {
+            background: hsl(240 10% 3.9%);
+            color: hsl(0 0% 98%);
         }
     </style>
 </head>
-<body class="min-h-screen bg-black">
+<body>
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useEffect, useRef, useCallback } = React;
 
-        // Task extraction function using pattern matching
+        // Task extraction function
         function extractTasksFromText(text) {
             const tasks = [];
-            
-            // First, normalize the text
             let normalizedText = text.trim();
             
-            // Split by multiple separators more aggressively
-            // Replace common connectors with a special delimiter
             normalizedText = normalizedText.replace(/\s+and\s+then\s+/gi, '|||');
             normalizedText = normalizedText.replace(/\s+and\s+after\s+that\s+/gi, '|||');
             normalizedText = normalizedText.replace(/\s+then\s+/gi, '|||');
@@ -96,10 +144,8 @@
             normalizedText = normalizedText.replace(/;\s+/g, '|||');
             normalizedText = normalizedText.replace(/\.\s+/g, '|||');
             
-            // Split by our delimiter
             let segments = normalizedText.split('|||').filter(s => s.trim().length > 3);
             
-            // Action words and verbs that indicate tasks
             const actionWords = ['need to', 'have to', 'should', 'must', 'want to', 'going to', 'plan to', 'will', 'got to', 'gotta', 'gonna', 'supposed to'];
             const actionVerbs = ['call', 'email', 'send', 'buy', 'finish', 'complete', 'write', 'read', 'review', 'meet', 'schedule', 'book', 'order', 'prepare', 'check', 'update', 'create', 'make', 'do', 'get', 'take', 'go', 'attend', 'submit', 'deliver', 'draft', 'edit', 'contact', 'follow up', 'organize', 'plan', 'develop', 'design', 'implement', 'test', 'fix', 'resolve'];
             
@@ -119,39 +165,30 @@
                 const trimmedSegment = segment.trim();
                 const lowerSegment = trimmedSegment.toLowerCase();
                 
-                // Skip very short segments or empty ones
                 if (trimmedSegment.length < 3) return;
                 
-                // Check if segment contains action indicators
                 const hasActionWord = actionWords.some(word => lowerSegment.includes(word));
                 const hasActionVerb = actionVerbs.some(verb => {
                     const regex = new RegExp(`\\b${verb}\\b`, 'i');
                     return regex.test(lowerSegment);
                 });
                 
-                // If it looks like a task, process it
                 if (hasActionWord || hasActionVerb || trimmedSegment.length > 8) {
-                    // Clean up the task title
                     let title = trimmedSegment;
                     
-                    // Remove leading action phrases
                     actionWords.forEach(word => {
                         const regex = new RegExp(`^(i\\s+)?(${word.replace(/\s+/g, '\\s+')})(\\s+i\\s+)?\\s*`, 'i');
                         title = title.replace(regex, '');
                     });
                     
-                    // Remove leading "I" or "to"
                     title = title.replace(/^(i|to)\s+/i, '');
                     
-                    // Capitalize first letter
                     if (title.length > 0) {
                         title = title.charAt(0).toUpperCase() + title.slice(1);
                     }
                     
-                    // Skip if title is too short after cleaning
                     if (title.length < 3) return;
                     
-                    // Determine suggested time
                     let suggestedTime = 'afternoon';
                     for (const [time, keywords] of Object.entries(timeKeywords)) {
                         if (keywords.some(kw => lowerSegment.includes(kw))) {
@@ -160,7 +197,6 @@
                         }
                     }
                     
-                    // Determine priority
                     let priority = 'medium';
                     for (const [level, keywords] of Object.entries(urgencyKeywords)) {
                         if (keywords.some(kw => lowerSegment.includes(kw))) {
@@ -169,7 +205,6 @@
                         }
                     }
                     
-                    // Estimate duration based on task type
                     let estimatedDuration = 30;
                     if (lowerSegment.match(/\b(call|phone|ring)\b/)) {
                         estimatedDuration = 15;
@@ -201,7 +236,6 @@
                 }
             });
 
-            // Remove exact duplicates
             const uniqueTasks = [];
             const seenTitles = new Set();
             
@@ -225,7 +259,7 @@
 
         const StopIcon = ({ className }) => (
             <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-                <rect x="6" y="6" width="12" height="12" rx="2" />
+                <rect x="7" y="7" width="10" height="10" rx="1" />
             </svg>
         );
 
@@ -255,7 +289,7 @@
 
         const CheckIcon = ({ className }) => (
             <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
             </svg>
         );
 
@@ -268,6 +302,12 @@
         const ArrowLeftIcon = ({ className }) => (
             <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+        );
+
+        const ListIcon = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
             </svg>
         );
 
@@ -326,11 +366,11 @@
 
                 recognition.onerror = (event) => {
                     if (event.error === 'not-allowed') {
-                        setError('Microphone access denied. Please allow microphone access and try again.');
+                        setError('Microphone access denied. Please allow microphone access.');
                     } else if (event.error === 'no-speech') {
-                        // Don't show error for no speech
+                        // Silent error
                     } else {
-                        setError(`Speech recognition error: ${event.error}`);
+                        setError(`Error: ${event.error}`);
                     }
                 };
 
@@ -351,7 +391,7 @@
                 try {
                     recognition.start();
                 } catch (e) {
-                    setError('Failed to start recording. Please try again.');
+                    setError('Failed to start recording.');
                 }
             }, [isRecording, setTranscript]);
 
@@ -373,219 +413,205 @@
             };
 
             return (
-                <div className="min-h-screen bg-gradient-to-b from-black via-purple-950 to-black flex flex-col items-center justify-center p-6 relative overflow-hidden">
-                    {/* Gradient orbs in background */}
-                    <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
-                    <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style={{animationDelay: '1s'}}></div>
-                    
-                    <div className="max-w-2xl w-full relative z-10">
-                        {/* Navigation Bar */}
-                        {existingTasksCount > 0 && (
-                            <div className="absolute -top-16 right-0">
+                <div className="min-h-screen flex flex-col">
+                    {/* Header */}
+                    <header className="border-b border-border">
+                        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                                <div className="h-8 w-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm">
+                                    TV
+                                </div>
+                                <span className="font-semibold text-lg">TaskVoice</span>
+                            </div>
+                            {existingTasksCount > 0 && (
                                 <button
                                     onClick={onViewTasks}
-                                    className="glass flex items-center gap-2 px-4 py-2.5 rounded-2xl text-white font-medium hover:bg-white/10 transition-all"
+                                    className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 shadow-lg shadow-primary/20"
                                 >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                                    </svg>
+                                    <ListIcon className="w-4 h-4 mr-2" />
                                     My Tasks
-                                    <span className="ml-1 px-2.5 py-0.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full text-xs font-bold">
+                                    <span className="ml-2 inline-flex items-center justify-center rounded-full bg-white/20 backdrop-blur-sm px-2.5 py-0.5 text-xs font-bold">
                                         {existingTasksCount}
                                     </span>
                                 </button>
-                            </div>
-                        )}
-
-                        <div className="text-center mb-12">
-                            <div className="inline-flex items-center justify-center w-16 h-16 mb-6">
-                                <svg className="w-full h-full text-white" viewBox="0 0 100 100" fill="none">
-                                    <circle cx="50" cy="50" r="40" fill="url(#grad1)" />
-                                    <path d="M50 20 L60 40 L80 40 L65 55 L70 75 L50 60 L30 75 L35 55 L20 40 L40 40 Z" fill="white" />
-                                    <defs>
-                                        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-                                            <stop offset="0%" style={{stopColor: '#667eea', stopOpacity: 1}} />
-                                            <stop offset="100%" style={{stopColor: '#764ba2', stopOpacity: 1}} />
-                                        </linearGradient>
-                                    </defs>
-                                </svg>
-                            </div>
-                            <h1 className="text-5xl md:text-6xl font-bold text-white mb-3">
-                                TaskVoice
-                            </h1>
-                            <p className="text-gray-400 text-lg">
-                                Speak your tasks, organize your day
-                            </p>
+                            )}
                         </div>
+                    </header>
 
-                        {error && (
-                            <div className="mb-6 p-4 glass-dark border border-red-500/30 rounded-2xl text-red-300 text-center text-sm">
-                                {error}
+                    {/* Main Content */}
+                    <main className="flex-1 container mx-auto px-4 py-12 max-w-3xl">
+                        <div className="space-y-8">
+                            {/* Title Section */}
+                            <div className="text-center space-y-2">
+                                <h1 className="text-4xl font-bold tracking-tight">Speak Your Tasks</h1>
+                                <p className="text-muted-foreground text-lg">
+                                    Convert your voice into organized, actionable tasks
+                                </p>
                             </div>
-                        )}
 
-                        <div className="flex justify-center mb-12">
-                            <div className="relative">
-                                {isRecording && (
-                                    <>
-                                        <div className="absolute inset-0 rounded-full bg-purple-500 pulse-ring"></div>
-                                        <div className="absolute inset-0 rounded-full bg-purple-500 pulse-ring" style={{ animationDelay: '0.5s' }}></div>
-                                    </>
-                                )}
-                                <button
-                                    onClick={toggleRecording}
-                                    disabled={!speechSupported}
-                                    className={`relative w-28 h-28 rounded-full flex items-center justify-center transition-all duration-300 ${
-                                        isRecording
-                                            ? 'bg-gradient-to-br from-red-500 to-pink-600 shadow-lg shadow-red-500/50 scale-110'
-                                            : 'bg-gradient-to-br from-purple-600 to-indigo-700 shadow-xl shadow-purple-600/50 hover:shadow-purple-600/70 hover:scale-105'
-                                    } ${!speechSupported ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                >
-                                    {isRecording ? (
-                                        <StopIcon className="w-12 h-12 text-white" />
-                                    ) : (
-                                        <MicrophoneIcon className="w-12 h-12 text-white" />
+                            {/* Error Display */}
+                            {error && (
+                                <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                                    {error}
+                                </div>
+                            )}
+
+                            {/* Microphone Section */}
+                            <div className="flex flex-col items-center gap-6 py-8">
+                                <div className="relative">
+                                    {isRecording && (
+                                        <>
+                                            <div className="absolute inset-0 rounded-full bg-red-500 pulse-ring opacity-40"></div>
+                                            <div className="absolute inset-0 rounded-full bg-red-500 pulse-ring opacity-40" style={{ animationDelay: '0.75s' }}></div>
+                                        </>
                                     )}
-                                </button>
+                                    <button
+                                        onClick={toggleRecording}
+                                        disabled={!speechSupported}
+                                        className={`relative h-24 w-24 rounded-full transition-all duration-200 ${
+                                            isRecording
+                                                ? 'bg-red-600 hover:bg-red-700 scale-105'
+                                                : 'bg-primary text-primary-foreground hover:bg-primary/90'
+                                        } disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg`}
+                                    >
+                                        {isRecording ? (
+                                            <StopIcon className="h-10 w-10" />
+                                        ) : (
+                                            <MicrophoneIcon className="h-10 w-10" />
+                                        )}
+                                    </button>
+                                </div>
+                                
+                                <div className="text-center">
+                                    <p className={`text-sm font-medium ${isRecording ? 'text-red-500' : 'text-muted-foreground'}`}>
+                                        {isRecording ? '● Recording in progress...' : 'Click to start recording'}
+                                    </p>
+                                </div>
                             </div>
-                        </div>
 
-                        <div className="text-center mb-8">
-                            <p className={`text-base font-medium ${isRecording ? 'text-red-400' : 'text-gray-400'}`}>
-                                {isRecording ? '● Recording...' : 'Tap to start recording'}
+                            {/* Live Transcript */}
+                            {currentText && (
+                                <div className="rounded-lg border border-border bg-card p-4">
+                                    <p className="text-xs font-medium text-muted-foreground mb-2">LISTENING...</p>
+                                    <p className="text-sm italic text-foreground/80">{currentText}</p>
+                                </div>
+                            )}
+
+                            {/* Transcript Textarea */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                    Your Conversation
+                                </label>
+                                <textarea
+                                    value={transcript}
+                                    onChange={(e) => setTranscript(e.target.value)}
+                                    placeholder={speechSupported
+                                        ? "Your spoken words will appear here... Or type directly"
+                                        : "Voice input not supported. Please type your tasks here"}
+                                    className="flex min-h-[160px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                                />
+                            </div>
+
+                            {/* Generate Button */}
+                            <button
+                                onClick={onGenerateTasks}
+                                disabled={!transcript.trim()}
+                                className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8 w-full shadow-lg shadow-primary/30 hover:shadow-primary/40"
+                            >
+                                <SparklesIcon className="w-5 h-5 mr-2" />
+                                Generate Tasks
+                            </button>
+
+                            {/* Help Text */}
+                            <p className="text-center text-xs text-muted-foreground">
+                                Try: "Call John tomorrow, send the report by Friday, and schedule a team meeting"
                             </p>
                         </div>
-
-                        {currentText && (
-                            <div className="mb-6 p-4 glass-dark rounded-2xl">
-                                <p className="text-gray-400 text-xs mb-2 uppercase tracking-wide">Currently hearing:</p>
-                                <p className="text-white italic">{currentText}</p>
-                            </div>
-                        )}
-
-                        <div className="mb-6">
-                            <label className="block text-gray-400 text-sm font-medium mb-3">
-                                Your conversation
-                            </label>
-                            <textarea
-                                value={transcript}
-                                onChange={(e) => setTranscript(e.target.value)}
-                                placeholder={speechSupported
-                                    ? "Your words will appear here..."
-                                    : "Voice input not supported. Type here instead."
-                                }
-                                className="w-full h-40 p-4 glass-dark rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600/50 resize-none"
-                            />
-                        </div>
-
-                        <button
-                            onClick={onGenerateTasks}
-                            disabled={!transcript.trim()}
-                            className={`w-full py-4 rounded-2xl font-semibold text-base flex items-center justify-center gap-3 transition-all duration-300 ${
-                                transcript.trim()
-                                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-lg shadow-purple-600/30 hover:shadow-purple-600/50'
-                                    : 'glass-dark text-gray-500 cursor-not-allowed'
-                            }`}
-                        >
-                            <SparklesIcon className="w-5 h-5" />
-                            Generate Tasks
-                        </button>
-
-                        <p className="text-center text-gray-500 text-xs mt-6">
-                            Try: "Call John, send the report, and schedule a meeting for Friday"
-                        </p>
-                    </div>
+                    </main>
                 </div>
             );
         }
 
         // Task Card Component
         function TaskCard({ task, onUpdate, onDelete }) {
-            const priorityColors = {
-                high: 'glass-dark border-red-500/30',
-                medium: 'glass-dark border-yellow-500/30',
-                low: 'glass-dark border-blue-500/30'
+            const priorityStyles = {
+                high: 'border-red-500/50 bg-red-500/10',
+                medium: 'border-yellow-500/50 bg-yellow-500/10',
+                low: 'border-blue-500/50 bg-blue-500/10'
             };
 
-            const priorityBadgeColors = {
-                high: 'bg-gradient-to-r from-red-500 to-pink-600 text-white',
-                medium: 'bg-gradient-to-r from-yellow-500 to-orange-500 text-black',
-                low: 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white'
+            const priorityBadgeStyles = {
+                high: 'bg-red-500 text-white',
+                medium: 'bg-yellow-500 text-black',
+                low: 'bg-blue-500 text-white'
             };
 
             const isScheduled = task.scheduledDate && task.scheduledTime;
 
             return (
-                <div className={`p-5 rounded-2xl border transition-all duration-300 hover:border-white/20 ${priorityColors[task.priority]} ${isScheduled ? 'ring-2 ring-green-500/50' : ''}`}>
-                    <div className="flex items-start gap-4">
+                <div className={`rounded-lg border ${priorityStyles[task.priority]} p-4 transition-all hover:shadow-md ${task.completed ? 'opacity-60' : ''}`}>
+                    <div className="flex items-start gap-3">
+                        {/* Checkbox */}
                         <button
                             onClick={() => onUpdate({ ...task, completed: !task.completed })}
-                            className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-1 transition-all ${
+                            className={`mt-0.5 h-5 w-5 rounded border-2 flex items-center justify-center transition-all ${
                                 task.completed
-                                    ? 'bg-gradient-to-r from-green-500 to-emerald-600 border-green-500'
-                                    : 'border-gray-600 hover:border-purple-500'
+                                    ? 'bg-primary border-primary'
+                                    : 'border-muted-foreground hover:border-primary'
                             }`}
                         >
-                            {task.completed && <CheckIcon className="w-4 h-4 text-white" />}
+                            {task.completed && <CheckIcon className="h-3 w-3 text-primary-foreground" />}
                         </button>
 
-                        <div className="flex-1 min-w-0">
-                            <div className="flex items-start justify-between gap-2 mb-2">
-                                <h3 className={`font-semibold text-white text-lg ${task.completed ? 'line-through opacity-40' : ''}`}>
+                        {/* Content */}
+                        <div className="flex-1 space-y-3">
+                            <div className="flex items-start justify-between gap-2">
+                                <h3 className={`font-semibold leading-tight ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
                                     {task.title}
                                 </h3>
-                                <span className={`px-3 py-1 rounded-full text-xs font-bold flex-shrink-0 ${priorityBadgeColors[task.priority]}`}>
-                                    {task.priority}
+                                <span className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-bold transition-colors ${priorityBadgeStyles[task.priority]}`}>
+                                    {task.priority.toUpperCase()}
                                 </span>
                             </div>
 
-                            <p className={`text-gray-400 text-sm mb-4 ${task.completed ? 'line-through opacity-40' : ''}`}>
+                            <p className={`text-sm text-muted-foreground ${task.completed ? 'line-through' : ''}`}>
                                 {task.description}
                             </p>
 
-                            <div className="flex flex-wrap gap-4 text-sm text-gray-500 mb-4">
-                                <span className="flex items-center gap-1.5">
-                                    <ClockIcon className="w-4 h-4" />
-                                    {task.estimatedDuration} min
+                            {/* Meta Info */}
+                            <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">
+                                <span className="inline-flex items-center gap-1">
+                                    <ClockIcon className="h-3 w-3" />
+                                    {task.estimatedDuration}min
                                 </span>
-                                <span className="flex items-center gap-1.5">
-                                    <SunIcon className="w-4 h-4" />
+                                <span className="inline-flex items-center gap-1">
+                                    <SunIcon className="h-3 w-3" />
                                     {task.suggestedTime}
                                 </span>
                             </div>
 
+                            {/* Schedule Inputs */}
                             <div className="flex flex-wrap gap-2 items-center">
-                                <div className="flex items-center gap-2">
-                                    <CalendarIcon className="w-4 h-4 text-gray-500" />
-                                    <input
-                                        type="date"
-                                        value={task.scheduledDate || ''}
-                                        onChange={(e) => onUpdate({ ...task, scheduledDate: e.target.value })}
-                                        className="glass-dark border-gray-700 rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-600/50"
-                                    />
-                                </div>
-                                <div className="flex items-center gap-2">
-                                    <ClockIcon className="w-4 h-4 text-gray-500" />
-                                    <input
-                                        type="time"
-                                        value={task.scheduledTime || ''}
-                                        onChange={(e) => onUpdate({ ...task, scheduledTime: e.target.value })}
-                                        className="glass-dark border-gray-700 rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-600/50"
-                                    />
-                                </div>
+                                <input
+                                    type="date"
+                                    value={task.scheduledDate || ''}
+                                    onChange={(e) => onUpdate({ ...task, scheduledDate: e.target.value })}
+                                    className="flex h-9 w-auto rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                />
                                 {isScheduled && (
-                                    <span className="px-3 py-1 bg-green-500/20 border border-green-500/50 rounded-full text-green-400 text-xs font-medium">
-                                        ✓ Scheduled
+                                    <span className="inline-flex items-center rounded-md bg-green-500 text-white px-2.5 py-0.5 text-xs font-bold">
+                                        ✓ SCHEDULED
                                     </span>
                                 )}
                             </div>
                         </div>
 
+                        {/* Delete Button */}
                         <button
                             onClick={() => onDelete(task.id)}
-                            className="p-2 text-gray-500 hover:text-red-400 transition-colors flex-shrink-0"
+                            className="text-muted-foreground hover:text-destructive transition-colors p-1"
                         >
-                            <TrashIcon className="w-5 h-5" />
+                            <TrashIcon className="h-4 w-4" />
                         </button>
                     </div>
                 </div>
@@ -701,79 +727,88 @@
             const scheduledCount = tasks.filter(t => t.scheduledDate && t.scheduledTime).length;
 
             return (
-                <div className="min-h-screen bg-gradient-to-b from-black via-purple-950 to-black p-6 relative overflow-hidden">
-                    {/* Gradient orbs */}
-                    <div className="absolute top-0 right-1/4 w-96 h-96 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse"></div>
-                    <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-indigo-600 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse" style={{animationDelay: '1s'}}></div>
-                    
-                    <div className="max-w-5xl mx-auto relative z-10">
-                        <div className="flex items-center justify-between mb-8">
+                <div className="min-h-screen flex flex-col">
+                    {/* Header */}
+                    <header className="border-b border-border">
+                        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
                             <button
                                 onClick={onBack}
-                                className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors glass px-4 py-2.5 rounded-2xl"
+                                className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
                             >
-                                <ArrowLeftIcon className="w-5 h-5" />
+                                <ArrowLeftIcon className="w-4 h-4 mr-2" />
                                 Back
                             </button>
-                            <h1 className="text-3xl md:text-4xl font-bold text-white">My Tasks</h1>
+                            <div className="flex items-center gap-2">
+                                <div className="h-8 w-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm">
+                                    TV
+                                </div>
+                                <span className="font-semibold text-lg">TaskVoice</span>
+                            </div>
                             <div className="w-24"></div>
                         </div>
+                    </header>
 
-                        <div className="grid grid-cols-3 gap-4 mb-8">
-                            <div className="glass-dark rounded-2xl p-5 text-center">
-                                <p className="text-4xl font-bold text-white mb-1">{tasks.length}</p>
-                                <p className="text-gray-400 text-sm">Total</p>
-                            </div>
-                            <div className="glass-dark rounded-2xl p-5 text-center">
-                                <p className="text-4xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent mb-1">{scheduledCount}</p>
-                                <p className="text-gray-400 text-sm">Scheduled</p>
-                            </div>
-                            <div className="glass-dark rounded-2xl p-5 text-center">
-                                <p className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-indigo-500 bg-clip-text text-transparent mb-1">{completedCount}</p>
-                                <p className="text-gray-400 text-sm">Done</p>
-                            </div>
-                        </div>
+                    {/* Main Content */}
+                    <main className="flex-1 container mx-auto px-4 py-8 max-w-5xl">
+                        <div className="space-y-6">
+                            {/* Title */}
+                            <h1 className="text-3xl font-bold tracking-tight">My Tasks</h1>
 
-                        <div className="flex flex-wrap gap-4 mb-8">
-                            <button
-                                onClick={autoScheduleAll}
-                                className="flex-1 min-w-[200px] py-4 px-6 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl font-semibold hover:from-purple-700 hover:to-indigo-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-purple-600/30"
-                            >
-                                <ClockIcon className="w-5 h-5" />
-                                Auto-Schedule All
-                            </button>
-                            <button
-                                onClick={generateICS}
-                                className="flex-1 min-w-[200px] py-4 px-6 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-2xl font-semibold hover:from-green-600 hover:to-emerald-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-green-600/30"
-                            >
-                                <CalendarIcon className="w-5 h-5" />
-                                Export to Calendar
-                            </button>
-                        </div>
-
-                        {tasks.length === 0 ? (
-                            <div className="text-center py-20">
-                                <div className="glass-dark rounded-3xl p-12 max-w-md mx-auto">
-                                    <svg className="w-20 h-20 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                                    </svg>
-                                    <p className="text-gray-400 text-lg">No tasks yet</p>
-                                    <p className="text-gray-500 text-sm mt-2">Go back and record some tasks!</p>
+                            {/* Stats Cards */}
+                            <div className="grid grid-cols-3 gap-4">
+                                <div className="rounded-lg border border-border bg-card p-6">
+                                    <div className="text-3xl font-bold">{tasks.length}</div>
+                                    <div className="text-sm text-muted-foreground mt-1">Total Tasks</div>
+                                </div>
+                                <div className="rounded-lg border border-green-500/20 bg-green-500/10 p-6">
+                                    <div className="text-3xl font-bold text-green-500">{scheduledCount}</div>
+                                    <div className="text-sm text-muted-foreground mt-1">Scheduled</div>
+                                </div>
+                                <div className="rounded-lg border border-blue-500/20 bg-blue-500/10 p-6">
+                                    <div className="text-3xl font-bold text-blue-500">{completedCount}</div>
+                                    <div className="text-sm text-muted-foreground mt-1">Completed</div>
                                 </div>
                             </div>
-                        ) : (
-                            <div className="space-y-4">
-                                {tasks.map(task => (
-                                    <TaskCard
-                                        key={task.id}
-                                        task={task}
-                                        onUpdate={updateTask}
-                                        onDelete={deleteTask}
-                                    />
-                                ))}
+
+                            {/* Action Buttons */}
+                            <div className="flex flex-wrap gap-3">
+                                <button
+                                    onClick={autoScheduleAll}
+                                    className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 shadow-lg shadow-primary/20"
+                                >
+                                    <ClockIcon className="w-4 h-4 mr-2" />
+                                    Auto-Schedule All
+                                </button>
+                                <button
+                                    onClick={generateICS}
+                                    className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-green-600 text-white hover:bg-green-700 h-10 px-4 py-2 shadow-lg shadow-green-600/20"
+                                >
+                                    <CalendarIcon className="w-4 h-4 mr-2" />
+                                    Export to Calendar
+                                </button>
                             </div>
-                        )}
-                    </div>
+
+                            {/* Task List */}
+                            {tasks.length === 0 ? (
+                                <div className="rounded-lg border border-dashed border-border bg-card p-12 text-center">
+                                    <ListIcon className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+                                    <h3 className="font-semibold mb-1">No tasks yet</h3>
+                                    <p className="text-sm text-muted-foreground">Go back and create your first task</p>
+                                </div>
+                            ) : (
+                                <div className="space-y-3">
+                                    {tasks.map(task => (
+                                        <TaskCard
+                                            key={task.id}
+                                            task={task}
+                                            onUpdate={updateTask}
+                                            onDelete={deleteTask}
+                                        />
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </main>
                 </div>
             );
         }
@@ -786,15 +821,13 @@
 
             const generateTasks = () => {
                 const extractedTasks = extractTasksFromText(transcript);
-                
-                // Add new tasks to existing tasks instead of replacing
                 setTasks(prevTasks => [...prevTasks, ...extractedTasks]);
                 setScreen('tasks');
             };
 
             const handleBack = () => {
                 setScreen('voice');
-                setTranscript(''); // Clear transcript when going back
+                setTranscript('');
             };
 
             const handleViewTasks = () => {
@@ -828,4 +861,10 @@
         root.render(<App />);
     </script>
 </body>
-</html>
+</html>text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                />
+                                <input
+                                    type="time"
+                                    value={task.scheduledTime || ''}
+                                    onChange={(e) => onUpdate({ ...task, scheduledTime: e.target.value })}
+                                    className="flex h-9 w-auto rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:
