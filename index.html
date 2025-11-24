@@ -13,66 +13,40 @@
             theme: {
                 extend: {
                     colors: {
-                        border: "hsl(240 5.9% 10%)",
-                        input: "hsl(240 5.9% 10%)",
-                        ring: "hsl(263 70% 50%)",
-                        background: "hsl(240 10% 3.9%)",
-                        foreground: "hsl(0 0% 98%)",
+                        border: "hsl(240 5.9% 90%)",
+                        input: "hsl(240 5.9% 90%)",
+                        ring: "hsl(240 5% 64.9%)",
+                        background: "hsl(0 0% 100%)",
+                        foreground: "hsl(240 10% 3.9%)",
                         primary: {
-                            DEFAULT: "hsl(263 70% 50%)",
-                            foreground: "hsl(0 0% 100%)",
+                            DEFAULT: "hsl(240 5.9% 10%)",
+                            foreground: "hsl(0 0% 98%)",
                         },
                         secondary: {
                             DEFAULT: "hsl(240 4.8% 95.9%)",
                             foreground: "hsl(240 5.9% 10%)",
                         },
                         destructive: {
-                            DEFAULT: "hsl(0 84.2% 60.2%)",
+                            DEFAULT: "hsl(346 100% 70%)",
                             foreground: "hsl(0 0% 98%)",
                         },
                         muted: {
-                            DEFAULT: "hsl(240 3.7% 15.9%)",
-                            foreground: "hsl(240 5% 64.9%)",
+                            DEFAULT: "hsl(240 4.8% 95.9%)",
+                            foreground: "hsl(240 3.8% 46.1%)",
                         },
                         accent: {
-                            DEFAULT: "hsl(263 70% 50%)",
-                            foreground: "hsl(0 0% 98%)",
-                        },
-                        popover: {
-                            DEFAULT: "hsl(240 10% 3.9%)",
-                            foreground: "hsl(0 0% 98%)",
+                            DEFAULT: "hsl(240 4.8% 95.9%)",
+                            foreground: "hsl(240 5.9% 10%)",
                         },
                         card: {
-                            DEFAULT: "hsl(240 10% 3.9%)",
-                            foreground: "hsl(0 0% 98%)",
-                        },
-                        purple: {
-                            500: "hsl(263 70% 50%)",
-                            600: "hsl(263 70% 45%)",
-                            700: "hsl(263 70% 40%)",
-                        },
-                        blue: {
-                            500: "hsl(217 91% 60%)",
-                            600: "hsl(217 91% 55%)",
-                        },
-                        green: {
-                            500: "hsl(142 76% 36%)",
-                            600: "hsl(142 76% 31%)",
-                        },
-                        yellow: {
-                            500: "hsl(48 96% 53%)",
-                            600: "hsl(48 96% 48%)",
-                        },
-                        red: {
-                            500: "hsl(0 84% 60%)",
-                            600: "hsl(0 84% 55%)",
-                            700: "hsl(0 84% 50%)",
+                            DEFAULT: "hsl(0 0% 100%)",
+                            foreground: "hsl(240 10% 3.9%)",
                         },
                     },
                     borderRadius: {
-                        lg: "0.75rem",
-                        md: "0.5rem",
-                        sm: "0.375rem",
+                        lg: "0.5rem",
+                        md: "calc(0.5rem - 2px)",
+                        sm: "calc(0.5rem - 4px)",
                     },
                     fontFamily: {
                         sans: ['Inter', 'system-ui', 'sans-serif'],
@@ -83,6 +57,19 @@
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        :root {
+            --pastel-pink: #ffc9db;
+            --pastel-blue: #d4e4f7;
+            --pastel-green: #c8e6d0;
+            --pastel-yellow: #fff4d4;
+            --pastel-purple: #dfd7f5;
+            --pastel-pink-light: #ffe8f0;
+            --pastel-blue-light: #e8f1fb;
+            --pastel-green-light: #e5f5e9;
+            --pastel-yellow-light: #fffaeb;
+            --pastel-purple-light: #f0ecfb;
+        }
         
         * {
             font-family: 'Inter', system-ui, sans-serif;
@@ -99,25 +86,25 @@
         
         /* Custom scrollbar */
         ::-webkit-scrollbar {
-            width: 6px;
+            width: 8px;
         }
         
         ::-webkit-scrollbar-track {
-            background: hsl(240 3.7% 15.9%);
+            background: hsl(240 5.9% 90%);
         }
         
         ::-webkit-scrollbar-thumb {
-            background: hsl(240 5% 26%);
-            border-radius: 3px;
+            background: hsl(240 5% 64.9%);
+            border-radius: 4px;
         }
         
         ::-webkit-scrollbar-thumb:hover {
-            background: hsl(240 5% 34%);
+            background: hsl(240 5% 54.9%);
         }
         
         body {
-            background: hsl(240 10% 3.9%);
-            color: hsl(0 0% 98%);
+            background: hsl(0 0% 100%);
+            color: hsl(240 10% 3.9%);
         }
     </style>
 </head>
@@ -413,24 +400,24 @@
             };
 
             return (
-                <div className="min-h-screen flex flex-col">
+                <div className="min-h-screen flex flex-col bg-gradient-to-br from-[var(--pastel-purple-light)] via-background to-[var(--pastel-blue-light)]">
                     {/* Header */}
-                    <header className="border-b border-border">
+                    <header className="border-b border-border/50 bg-card/80 backdrop-blur-sm">
                         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                <div className="h-8 w-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm">
+                            <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-[var(--pastel-purple)] to-[var(--pastel-pink)] flex items-center justify-center font-bold text-sm text-primary shadow-sm">
                                     TV
                                 </div>
-                                <span className="font-semibold text-lg">TaskVoice</span>
+                                <span className="font-semibold text-xl">TaskVoice</span>
                             </div>
                             {existingTasksCount > 0 && (
                                 <button
                                     onClick={onViewTasks}
-                                    className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 shadow-lg shadow-primary/20"
+                                    className="inline-flex items-center justify-center rounded-xl text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-[var(--pastel-blue-light)] hover:bg-[var(--pastel-blue)] text-foreground h-10 px-4 py-2 border border-[var(--pastel-blue)]"
                                 >
                                     <ListIcon className="w-4 h-4 mr-2" />
                                     My Tasks
-                                    <span className="ml-2 inline-flex items-center justify-center rounded-full bg-white/20 backdrop-blur-sm px-2.5 py-0.5 text-xs font-bold">
+                                    <span className="ml-2 inline-flex items-center justify-center rounded-full bg-[var(--pastel-purple)] text-foreground px-2.5 py-0.5 text-xs font-bold">
                                         {existingTasksCount}
                                     </span>
                                 </button>
@@ -442,8 +429,10 @@
                     <main className="flex-1 container mx-auto px-4 py-12 max-w-3xl">
                         <div className="space-y-8">
                             {/* Title Section */}
-                            <div className="text-center space-y-2">
-                                <h1 className="text-4xl font-bold tracking-tight">Speak Your Tasks</h1>
+                            <div className="text-center space-y-3">
+                                <h1 className="text-5xl font-bold tracking-tight bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                                    Speak Your Tasks
+                                </h1>
                                 <p className="text-muted-foreground text-lg">
                                     Convert your voice into organized, actionable tasks
                                 </p>
@@ -451,7 +440,7 @@
 
                             {/* Error Display */}
                             {error && (
-                                <div className="rounded-lg border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+                                <div className="rounded-2xl border border-destructive/50 bg-[var(--pastel-pink-light)] px-4 py-3 text-sm text-destructive">
                                     {error}
                                 </div>
                             )}
@@ -461,29 +450,29 @@
                                 <div className="relative">
                                     {isRecording && (
                                         <>
-                                            <div className="absolute inset-0 rounded-full bg-red-500 pulse-ring opacity-40"></div>
-                                            <div className="absolute inset-0 rounded-full bg-red-500 pulse-ring opacity-40" style={{ animationDelay: '0.75s' }}></div>
+                                            <div className="absolute inset-0 rounded-full bg-[var(--pastel-pink)] pulse-ring opacity-60"></div>
+                                            <div className="absolute inset-0 rounded-full bg-[var(--pastel-pink)] pulse-ring opacity-60" style={{ animationDelay: '0.75s' }}></div>
                                         </>
                                     )}
                                     <button
                                         onClick={toggleRecording}
                                         disabled={!speechSupported}
-                                        className={`relative h-24 w-24 rounded-full transition-all duration-200 ${
+                                        className={`relative h-28 w-28 rounded-full transition-all duration-200 shadow-xl ${
                                             isRecording
-                                                ? 'bg-red-600 hover:bg-red-700 scale-105'
-                                                : 'bg-primary text-primary-foreground hover:bg-primary/90'
-                                        } disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg`}
+                                                ? 'bg-gradient-to-br from-[var(--pastel-pink)] to-destructive hover:shadow-2xl scale-105'
+                                                : 'bg-gradient-to-br from-[var(--pastel-blue)] to-[var(--pastel-purple)] hover:shadow-2xl hover:scale-105'
+                                        } disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center`}
                                     >
                                         {isRecording ? (
-                                            <StopIcon className="h-10 w-10" />
+                                            <StopIcon className="h-12 w-12 text-white" />
                                         ) : (
-                                            <MicrophoneIcon className="h-10 w-10" />
+                                            <MicrophoneIcon className="h-12 w-12 text-primary" />
                                         )}
                                     </button>
                                 </div>
                                 
                                 <div className="text-center">
-                                    <p className={`text-sm font-medium ${isRecording ? 'text-red-500' : 'text-muted-foreground'}`}>
+                                    <p className={`text-sm font-medium ${isRecording ? 'text-destructive' : 'text-muted-foreground'}`}>
                                         {isRecording ? '● Recording in progress...' : 'Click to start recording'}
                                     </p>
                                 </div>
@@ -491,15 +480,15 @@
 
                             {/* Live Transcript */}
                             {currentText && (
-                                <div className="rounded-lg border border-border bg-card p-4">
-                                    <p className="text-xs font-medium text-muted-foreground mb-2">LISTENING...</p>
-                                    <p className="text-sm italic text-foreground/80">{currentText}</p>
+                                <div className="rounded-2xl border border-[var(--pastel-yellow)] bg-[var(--pastel-yellow-light)] p-4">
+                                    <p className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wide">Listening...</p>
+                                    <p className="text-sm italic text-foreground/90">{currentText}</p>
                                 </div>
                             )}
 
                             {/* Transcript Textarea */}
                             <div className="space-y-2">
-                                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                <label className="text-sm font-semibold leading-none">
                                     Your Conversation
                                 </label>
                                 <textarea
@@ -508,7 +497,7 @@
                                     placeholder={speechSupported
                                         ? "Your spoken words will appear here... Or type directly"
                                         : "Voice input not supported. Please type your tasks here"}
-                                    className="flex min-h-[160px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+                                    className="flex min-h-[180px] w-full rounded-2xl border border-border/50 bg-card px-4 py-3 text-sm shadow-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--pastel-purple)] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-none"
                                 />
                             </div>
 
@@ -516,15 +505,15 @@
                             <button
                                 onClick={onGenerateTasks}
                                 disabled={!transcript.trim()}
-                                className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-8 w-full shadow-lg shadow-primary/30 hover:shadow-primary/40"
+                                className="inline-flex items-center justify-center rounded-xl text-sm font-semibold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gradient-to-r from-[var(--pastel-purple)] to-[var(--pastel-pink)] text-foreground hover:shadow-lg hover:scale-[1.02] h-12 px-8 w-full"
                             >
                                 <SparklesIcon className="w-5 h-5 mr-2" />
                                 Generate Tasks
                             </button>
 
                             {/* Help Text */}
-                            <p className="text-center text-xs text-muted-foreground">
-                                Try: "Call John tomorrow, send the report by Friday, and schedule a team meeting"
+                            <p className="text-center text-xs text-muted-foreground bg-[var(--pastel-blue-light)] rounded-2xl py-3 px-4 border border-[var(--pastel-blue)]/30">
+                                💡 Try: "Call John tomorrow, send the report by Friday, and schedule a team meeting"
                             </p>
                         </div>
                     </main>
@@ -535,15 +524,15 @@
         // Task Card Component
         function TaskCard({ task, onUpdate, onDelete }) {
             const priorityStyles = {
-                high: 'border-red-500/50 bg-red-500/10',
-                medium: 'border-yellow-500/50 bg-yellow-500/10',
-                low: 'border-blue-500/50 bg-blue-500/10'
+                high: 'border-red-500/50 bg-red-500/5',
+                medium: 'border-yellow-500/50 bg-yellow-500/5',
+                low: 'border-blue-500/50 bg-blue-500/5'
             };
 
             const priorityBadgeStyles = {
-                high: 'bg-red-500 text-white',
-                medium: 'bg-yellow-500 text-black',
-                low: 'bg-blue-500 text-white'
+                high: 'bg-red-500/10 text-red-500 border-red-500/20',
+                medium: 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20',
+                low: 'bg-blue-500/10 text-blue-500 border-blue-500/20'
             };
 
             const isScheduled = task.scheduledDate && task.scheduledTime;
@@ -569,8 +558,8 @@
                                 <h3 className={`font-semibold leading-tight ${task.completed ? 'line-through text-muted-foreground' : ''}`}>
                                     {task.title}
                                 </h3>
-                                <span className={`inline-flex items-center rounded-md px-2.5 py-0.5 text-xs font-bold transition-colors ${priorityBadgeStyles[task.priority]}`}>
-                                    {task.priority.toUpperCase()}
+                                <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors ${priorityBadgeStyles[task.priority]}`}>
+                                    {task.priority}
                                 </span>
                             </div>
 
@@ -599,8 +588,8 @@
                                     className="flex h-9 w-auto rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                                 />
                                 {isScheduled && (
-                                    <span className="inline-flex items-center rounded-md bg-green-500 text-white px-2.5 py-0.5 text-xs font-bold">
-                                        ✓ SCHEDULED
+                                    <span className="inline-flex items-center rounded-full border border-green-500/20 bg-green-500/10 px-2.5 py-0.5 text-xs font-semibold text-green-500">
+                                        ✓ Scheduled
                                     </span>
                                 )}
                             </div>
@@ -727,22 +716,22 @@
             const scheduledCount = tasks.filter(t => t.scheduledDate && t.scheduledTime).length;
 
             return (
-                <div className="min-h-screen flex flex-col">
+                <div className="min-h-screen flex flex-col bg-gradient-to-br from-[var(--pastel-blue-light)] via-background to-[var(--pastel-green-light)]">
                     {/* Header */}
-                    <header className="border-b border-border">
+                    <header className="border-b border-border/50 bg-card/80 backdrop-blur-sm">
                         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
                             <button
                                 onClick={onBack}
-                                className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"
+                                className="inline-flex items-center justify-center rounded-xl text-sm font-medium ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-[var(--pastel-purple-light)] hover:bg-[var(--pastel-purple)] text-foreground h-10 px-4 py-2 border border-[var(--pastel-purple)]"
                             >
                                 <ArrowLeftIcon className="w-4 h-4 mr-2" />
                                 Back
                             </button>
-                            <div className="flex items-center gap-2">
-                                <div className="h-8 w-8 rounded-lg bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm">
+                            <div className="flex items-center gap-3">
+                                <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-[var(--pastel-purple)] to-[var(--pastel-pink)] flex items-center justify-center font-bold text-sm text-primary shadow-sm">
                                     TV
                                 </div>
-                                <span className="font-semibold text-lg">TaskVoice</span>
+                                <span className="font-semibold text-xl">TaskVoice</span>
                             </div>
                             <div className="w-24"></div>
                         </div>
@@ -752,21 +741,21 @@
                     <main className="flex-1 container mx-auto px-4 py-8 max-w-5xl">
                         <div className="space-y-6">
                             {/* Title */}
-                            <h1 className="text-3xl font-bold tracking-tight">My Tasks</h1>
+                            <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">My Tasks</h1>
 
                             {/* Stats Cards */}
                             <div className="grid grid-cols-3 gap-4">
-                                <div className="rounded-lg border border-border bg-card p-6">
+                                <div className="rounded-2xl border-2 border-[var(--pastel-purple)] bg-[var(--pastel-purple-light)] p-6">
                                     <div className="text-3xl font-bold">{tasks.length}</div>
-                                    <div className="text-sm text-muted-foreground mt-1">Total Tasks</div>
+                                    <div className="text-xs text-muted-foreground mt-1 font-medium">Total Tasks</div>
                                 </div>
-                                <div className="rounded-lg border border-green-500/20 bg-green-500/10 p-6">
-                                    <div className="text-3xl font-bold text-green-500">{scheduledCount}</div>
-                                    <div className="text-sm text-muted-foreground mt-1">Scheduled</div>
+                                <div className="rounded-2xl border-2 border-[var(--pastel-green)] bg-[var(--pastel-green-light)] p-6">
+                                    <div className="text-3xl font-bold text-green-600">{scheduledCount}</div>
+                                    <div className="text-xs text-muted-foreground mt-1 font-medium">Scheduled</div>
                                 </div>
-                                <div className="rounded-lg border border-blue-500/20 bg-blue-500/10 p-6">
-                                    <div className="text-3xl font-bold text-blue-500">{completedCount}</div>
-                                    <div className="text-sm text-muted-foreground mt-1">Completed</div>
+                                <div className="rounded-2xl border-2 border-[var(--pastel-blue)] bg-[var(--pastel-blue-light)] p-6">
+                                    <div className="text-3xl font-bold text-blue-600">{completedCount}</div>
+                                    <div className="text-xs text-muted-foreground mt-1 font-medium">Completed</div>
                                 </div>
                             </div>
 
@@ -774,14 +763,14 @@
                             <div className="flex flex-wrap gap-3">
                                 <button
                                     onClick={autoScheduleAll}
-                                    className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 shadow-lg shadow-primary/20"
+                                    className="inline-flex items-center justify-center rounded-xl text-sm font-semibold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-gradient-to-r from-[var(--pastel-purple)] to-[var(--pastel-pink)] text-foreground hover:shadow-lg hover:scale-[1.02] h-11 px-6 py-2"
                                 >
                                     <ClockIcon className="w-4 h-4 mr-2" />
                                     Auto-Schedule All
                                 </button>
                                 <button
                                     onClick={generateICS}
-                                    className="inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-green-600 text-white hover:bg-green-700 h-10 px-4 py-2 shadow-lg shadow-green-600/20"
+                                    className="inline-flex items-center justify-center rounded-xl text-sm font-semibold ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 bg-[var(--pastel-green-light)] hover:bg-[var(--pastel-green)] text-foreground border-2 border-[var(--pastel-green)] hover:shadow-md h-11 px-6 py-2"
                                 >
                                     <CalendarIcon className="w-4 h-4 mr-2" />
                                     Export to Calendar
@@ -790,13 +779,15 @@
 
                             {/* Task List */}
                             {tasks.length === 0 ? (
-                                <div className="rounded-lg border border-dashed border-border bg-card p-12 text-center">
-                                    <ListIcon className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-                                    <h3 className="font-semibold mb-1">No tasks yet</h3>
+                                <div className="rounded-2xl border-2 border-dashed border-border bg-card/50 p-16 text-center">
+                                    <div className="bg-[var(--pastel-blue-light)] w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                        <ListIcon className="w-8 h-8 text-muted-foreground" />
+                                    </div>
+                                    <h3 className="font-semibold text-lg mb-2">No tasks yet</h3>
                                     <p className="text-sm text-muted-foreground">Go back and create your first task</p>
                                 </div>
                             ) : (
-                                <div className="space-y-3">
+                                <div className="space-y-4">
                                     {tasks.map(task => (
                                         <TaskCard
                                             key={task.id}
