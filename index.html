@@ -16,9 +16,48 @@
         .pulse-ring {
             animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
         }
+        
+        /* Glassmorphism effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .glass-dark {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-purple-800">
+<body class="min-h-screen bg-black">
     <div id="root"></div>
 
     <script type="text/babel">
@@ -322,53 +361,72 @@
             };
 
             return (
-                <div className="min-h-screen flex flex-col items-center justify-center p-6">
-                    <div className="max-w-2xl w-full">
-                        <div className="text-center mb-8">
-                            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                                Voice Task Manager
-                            </h1>
-                            <p className="text-purple-200 text-lg">
-                                Speak your tasks naturally and organize them instantly
-                            </p>
-                        </div>
-
-                        {/* Show My Tasks Button - only if tasks exist */}
+                <div className="min-h-screen bg-gradient-to-b from-black via-purple-950 to-black flex flex-col items-center justify-center p-6 relative overflow-hidden">
+                    {/* Gradient orbs in background */}
+                    <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse"></div>
+                    <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-indigo-600 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-pulse" style={{animationDelay: '1s'}}></div>
+                    
+                    <div className="max-w-2xl w-full relative z-10">
+                        {/* Navigation Bar */}
                         {existingTasksCount > 0 && (
-                            <div className="mb-6">
+                            <div className="absolute -top-16 right-0">
                                 <button
                                     onClick={onViewTasks}
-                                    className="w-full py-3 px-6 bg-white/10 backdrop-blur border-2 border-purple-400/50 rounded-lg text-white font-semibold hover:bg-white/20 hover:border-purple-400 transition-all flex items-center justify-center gap-2"
+                                    className="glass flex items-center gap-2 px-4 py-2.5 rounded-2xl text-white font-medium hover:bg-white/10 transition-all"
                                 >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
                                     </svg>
-                                    View My Tasks ({existingTasksCount})
+                                    My Tasks
+                                    <span className="ml-1 px-2.5 py-0.5 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-full text-xs font-bold">
+                                        {existingTasksCount}
+                                    </span>
                                 </button>
                             </div>
                         )}
 
+                        <div className="text-center mb-12">
+                            <div className="inline-flex items-center justify-center w-16 h-16 mb-6">
+                                <svg className="w-full h-full text-white" viewBox="0 0 100 100" fill="none">
+                                    <circle cx="50" cy="50" r="40" fill="url(#grad1)" />
+                                    <path d="M50 20 L60 40 L80 40 L65 55 L70 75 L50 60 L30 75 L35 55 L20 40 L40 40 Z" fill="white" />
+                                    <defs>
+                                        <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                            <stop offset="0%" style={{stopColor: '#667eea', stopOpacity: 1}} />
+                                            <stop offset="100%" style={{stopColor: '#764ba2', stopOpacity: 1}} />
+                                        </linearGradient>
+                                    </defs>
+                                </svg>
+                            </div>
+                            <h1 className="text-5xl md:text-6xl font-bold text-white mb-3">
+                                TaskVoice
+                            </h1>
+                            <p className="text-gray-400 text-lg">
+                                Speak your tasks, organize your day
+                            </p>
+                        </div>
+
                         {error && (
-                            <div className="mb-6 p-4 bg-red-500/20 border border-red-500 rounded-lg text-red-200 text-center">
+                            <div className="mb-6 p-4 glass-dark border border-red-500/30 rounded-2xl text-red-300 text-center text-sm">
                                 {error}
                             </div>
                         )}
 
-                        <div className="flex justify-center mb-8">
+                        <div className="flex justify-center mb-12">
                             <div className="relative">
                                 {isRecording && (
                                     <>
-                                        <div className="absolute inset-0 rounded-full bg-red-500 pulse-ring"></div>
-                                        <div className="absolute inset-0 rounded-full bg-red-500 pulse-ring" style={{ animationDelay: '0.5s' }}></div>
+                                        <div className="absolute inset-0 rounded-full bg-purple-500 pulse-ring"></div>
+                                        <div className="absolute inset-0 rounded-full bg-purple-500 pulse-ring" style={{ animationDelay: '0.5s' }}></div>
                                     </>
                                 )}
                                 <button
                                     onClick={toggleRecording}
                                     disabled={!speechSupported}
-                                    className={`relative w-32 h-32 rounded-full flex items-center justify-center transition-all duration-300 transform hover:scale-105 ${
+                                    className={`relative w-28 h-28 rounded-full flex items-center justify-center transition-all duration-300 ${
                                         isRecording
-                                            ? 'bg-red-500 shadow-lg shadow-red-500/50'
-                                            : 'bg-gradient-to-br from-purple-500 to-indigo-600 shadow-lg shadow-purple-500/50 hover:shadow-purple-500/70'
+                                            ? 'bg-gradient-to-br from-red-500 to-pink-600 shadow-lg shadow-red-500/50 scale-110'
+                                            : 'bg-gradient-to-br from-purple-600 to-indigo-700 shadow-xl shadow-purple-600/50 hover:shadow-purple-600/70 hover:scale-105'
                                     } ${!speechSupported ? 'opacity-50 cursor-not-allowed' : ''}`}
                                 >
                                     {isRecording ? (
@@ -380,49 +438,49 @@
                             </div>
                         </div>
 
-                        <div className="text-center mb-6">
-                            <p className={`text-lg font-medium ${isRecording ? 'text-red-400' : 'text-purple-300'}`}>
-                                {isRecording ? '🔴 Recording...' : 'Tap to start recording'}
+                        <div className="text-center mb-8">
+                            <p className={`text-base font-medium ${isRecording ? 'text-red-400' : 'text-gray-400'}`}>
+                                {isRecording ? '● Recording...' : 'Tap to start recording'}
                             </p>
                         </div>
 
                         {currentText && (
-                            <div className="mb-6 p-4 bg-white/10 backdrop-blur rounded-lg border border-purple-400/30">
-                                <p className="text-purple-200 text-sm mb-2">Currently hearing:</p>
+                            <div className="mb-6 p-4 glass-dark rounded-2xl">
+                                <p className="text-gray-400 text-xs mb-2 uppercase tracking-wide">Currently hearing:</p>
                                 <p className="text-white italic">{currentText}</p>
                             </div>
                         )}
 
                         <div className="mb-6">
-                            <label className="block text-purple-200 text-sm font-medium mb-2">
-                                Conversation Transcript
+                            <label className="block text-gray-400 text-sm font-medium mb-3">
+                                Your conversation
                             </label>
                             <textarea
                                 value={transcript}
                                 onChange={(e) => setTranscript(e.target.value)}
                                 placeholder={speechSupported
-                                    ? "Your spoken words will appear here... You can also type directly."
-                                    : "Voice input not supported. Please type your tasks here."
+                                    ? "Your words will appear here..."
+                                    : "Voice input not supported. Type here instead."
                                 }
-                                className="w-full h-48 p-4 bg-white/10 backdrop-blur border border-purple-400/30 rounded-lg text-white placeholder-purple-300/50 focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none"
+                                className="w-full h-40 p-4 glass-dark rounded-2xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-600/50 resize-none"
                             />
                         </div>
 
                         <button
                             onClick={onGenerateTasks}
                             disabled={!transcript.trim()}
-                            className={`w-full py-4 rounded-lg font-semibold text-lg flex items-center justify-center gap-2 transition-all duration-300 ${
+                            className={`w-full py-4 rounded-2xl font-semibold text-base flex items-center justify-center gap-3 transition-all duration-300 ${
                                 transcript.trim()
-                                    ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600 shadow-lg hover:shadow-purple-500/50'
-                                    : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                                    ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:from-purple-700 hover:to-indigo-700 shadow-lg shadow-purple-600/30 hover:shadow-purple-600/50'
+                                    : 'glass-dark text-gray-500 cursor-not-allowed'
                             }`}
                         >
-                            <SparklesIcon className="w-6 h-6" />
-                            Generate Task List
+                            <SparklesIcon className="w-5 h-5" />
+                            Generate Tasks
                         </button>
 
-                        <p className="text-center text-purple-300/70 text-sm mt-4">
-                            Try saying: "I need to finish the report by Friday, call mom tomorrow morning, and buy groceries this evening"
+                        <p className="text-center text-gray-500 text-xs mt-6">
+                            Try: "Call John, send the report, and schedule a meeting for Friday"
                         </p>
                     </div>
                 </div>
@@ -432,28 +490,28 @@
         // Task Card Component
         function TaskCard({ task, onUpdate, onDelete }) {
             const priorityColors = {
-                high: 'bg-red-500/20 border-red-500',
-                medium: 'bg-yellow-500/20 border-yellow-500',
-                low: 'bg-blue-500/20 border-blue-500'
+                high: 'glass-dark border-red-500/30',
+                medium: 'glass-dark border-yellow-500/30',
+                low: 'glass-dark border-blue-500/30'
             };
 
             const priorityBadgeColors = {
-                high: 'bg-red-500 text-white',
-                medium: 'bg-yellow-500 text-black',
-                low: 'bg-blue-500 text-white'
+                high: 'bg-gradient-to-r from-red-500 to-pink-600 text-white',
+                medium: 'bg-gradient-to-r from-yellow-500 to-orange-500 text-black',
+                low: 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white'
             };
 
             const isScheduled = task.scheduledDate && task.scheduledTime;
 
             return (
-                <div className={`p-4 rounded-lg border-2 transition-all duration-300 ${priorityColors[task.priority]} ${isScheduled ? 'ring-2 ring-green-400 ring-offset-2 ring-offset-purple-900' : ''}`}>
-                    <div className="flex items-start gap-3">
+                <div className={`p-5 rounded-2xl border transition-all duration-300 hover:border-white/20 ${priorityColors[task.priority]} ${isScheduled ? 'ring-2 ring-green-500/50' : ''}`}>
+                    <div className="flex items-start gap-4">
                         <button
                             onClick={() => onUpdate({ ...task, completed: !task.completed })}
                             className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-1 transition-all ${
                                 task.completed
-                                    ? 'bg-green-500 border-green-500'
-                                    : 'border-purple-400 hover:border-purple-300'
+                                    ? 'bg-gradient-to-r from-green-500 to-emerald-600 border-green-500'
+                                    : 'border-gray-600 hover:border-purple-500'
                             }`}
                         >
                             {task.completed && <CheckIcon className="w-4 h-4 text-white" />}
@@ -461,24 +519,24 @@
 
                         <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between gap-2 mb-2">
-                                <h3 className={`font-semibold text-white ${task.completed ? 'line-through opacity-50' : ''}`}>
+                                <h3 className={`font-semibold text-white text-lg ${task.completed ? 'line-through opacity-40' : ''}`}>
                                     {task.title}
                                 </h3>
-                                <span className={`px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 ${priorityBadgeColors[task.priority]}`}>
+                                <span className={`px-3 py-1 rounded-full text-xs font-bold flex-shrink-0 ${priorityBadgeColors[task.priority]}`}>
                                     {task.priority}
                                 </span>
                             </div>
 
-                            <p className={`text-purple-200 text-sm mb-3 ${task.completed ? 'line-through opacity-50' : ''}`}>
+                            <p className={`text-gray-400 text-sm mb-4 ${task.completed ? 'line-through opacity-40' : ''}`}>
                                 {task.description}
                             </p>
 
-                            <div className="flex flex-wrap gap-3 text-sm text-purple-300 mb-3">
-                                <span className="flex items-center gap-1">
+                            <div className="flex flex-wrap gap-4 text-sm text-gray-500 mb-4">
+                                <span className="flex items-center gap-1.5">
                                     <ClockIcon className="w-4 h-4" />
                                     {task.estimatedDuration} min
                                 </span>
-                                <span className="flex items-center gap-1">
+                                <span className="flex items-center gap-1.5">
                                     <SunIcon className="w-4 h-4" />
                                     {task.suggestedTime}
                                 </span>
@@ -486,26 +544,26 @@
 
                             <div className="flex flex-wrap gap-2 items-center">
                                 <div className="flex items-center gap-2">
-                                    <CalendarIcon className="w-4 h-4 text-purple-400" />
+                                    <CalendarIcon className="w-4 h-4 text-gray-500" />
                                     <input
                                         type="date"
                                         value={task.scheduledDate || ''}
                                         onChange={(e) => onUpdate({ ...task, scheduledDate: e.target.value })}
-                                        className="bg-white/10 border border-purple-400/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                        className="glass-dark border-gray-700 rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-600/50"
                                     />
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <ClockIcon className="w-4 h-4 text-purple-400" />
+                                    <ClockIcon className="w-4 h-4 text-gray-500" />
                                     <input
                                         type="time"
                                         value={task.scheduledTime || ''}
                                         onChange={(e) => onUpdate({ ...task, scheduledTime: e.target.value })}
-                                        className="bg-white/10 border border-purple-400/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                        className="glass-dark border-gray-700 rounded-lg px-3 py-1.5 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-600/50"
                                     />
                                 </div>
                                 {isScheduled && (
-                                    <span className="px-2 py-1 bg-green-500/20 border border-green-500 rounded text-green-400 text-xs">
-                                        Scheduled
+                                    <span className="px-3 py-1 bg-green-500/20 border border-green-500/50 rounded-full text-green-400 text-xs font-medium">
+                                        ✓ Scheduled
                                     </span>
                                 )}
                             </div>
@@ -513,7 +571,7 @@
 
                         <button
                             onClick={() => onDelete(task.id)}
-                            className="p-2 text-purple-400 hover:text-red-400 transition-colors flex-shrink-0"
+                            className="p-2 text-gray-500 hover:text-red-400 transition-colors flex-shrink-0"
                         >
                             <TrashIcon className="w-5 h-5" />
                         </button>
@@ -631,46 +689,50 @@
             const scheduledCount = tasks.filter(t => t.scheduledDate && t.scheduledTime).length;
 
             return (
-                <div className="min-h-screen p-6">
-                    <div className="max-w-4xl mx-auto">
+                <div className="min-h-screen bg-gradient-to-b from-black via-purple-950 to-black p-6 relative overflow-hidden">
+                    {/* Gradient orbs */}
+                    <div className="absolute top-0 right-1/4 w-96 h-96 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse"></div>
+                    <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-indigo-600 rounded-full mix-blend-multiply filter blur-3xl opacity-10 animate-pulse" style={{animationDelay: '1s'}}></div>
+                    
+                    <div className="max-w-5xl mx-auto relative z-10">
                         <div className="flex items-center justify-between mb-8">
                             <button
                                 onClick={onBack}
-                                className="flex items-center gap-2 text-purple-300 hover:text-white transition-colors"
+                                className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors glass px-4 py-2.5 rounded-2xl"
                             >
                                 <ArrowLeftIcon className="w-5 h-5" />
                                 Back
                             </button>
-                            <h1 className="text-2xl md:text-3xl font-bold text-white">Your Tasks</h1>
-                            <div className="w-20"></div>
+                            <h1 className="text-3xl md:text-4xl font-bold text-white">My Tasks</h1>
+                            <div className="w-24"></div>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-4 mb-6">
-                            <div className="bg-white/10 backdrop-blur rounded-lg p-4 text-center">
-                                <p className="text-3xl font-bold text-white">{tasks.length}</p>
-                                <p className="text-purple-300 text-sm">Total Tasks</p>
+                        <div className="grid grid-cols-3 gap-4 mb-8">
+                            <div className="glass-dark rounded-2xl p-5 text-center">
+                                <p className="text-4xl font-bold text-white mb-1">{tasks.length}</p>
+                                <p className="text-gray-400 text-sm">Total</p>
                             </div>
-                            <div className="bg-white/10 backdrop-blur rounded-lg p-4 text-center">
-                                <p className="text-3xl font-bold text-green-400">{scheduledCount}</p>
-                                <p className="text-purple-300 text-sm">Scheduled</p>
+                            <div className="glass-dark rounded-2xl p-5 text-center">
+                                <p className="text-4xl font-bold bg-gradient-to-r from-green-400 to-emerald-500 bg-clip-text text-transparent mb-1">{scheduledCount}</p>
+                                <p className="text-gray-400 text-sm">Scheduled</p>
                             </div>
-                            <div className="bg-white/10 backdrop-blur rounded-lg p-4 text-center">
-                                <p className="text-3xl font-bold text-purple-400">{completedCount}</p>
-                                <p className="text-purple-300 text-sm">Completed</p>
+                            <div className="glass-dark rounded-2xl p-5 text-center">
+                                <p className="text-4xl font-bold bg-gradient-to-r from-purple-400 to-indigo-500 bg-clip-text text-transparent mb-1">{completedCount}</p>
+                                <p className="text-gray-400 text-sm">Done</p>
                             </div>
                         </div>
 
-                        <div className="flex flex-wrap gap-4 mb-6">
+                        <div className="flex flex-wrap gap-4 mb-8">
                             <button
                                 onClick={autoScheduleAll}
-                                className="flex-1 min-w-[200px] py-3 px-6 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-lg font-semibold hover:from-purple-600 hover:to-indigo-600 transition-all flex items-center justify-center gap-2"
+                                className="flex-1 min-w-[200px] py-4 px-6 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-2xl font-semibold hover:from-purple-700 hover:to-indigo-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-purple-600/30"
                             >
                                 <ClockIcon className="w-5 h-5" />
                                 Auto-Schedule All
                             </button>
                             <button
                                 onClick={generateICS}
-                                className="flex-1 min-w-[200px] py-3 px-6 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg font-semibold hover:from-green-600 hover:to-emerald-600 transition-all flex items-center justify-center gap-2"
+                                className="flex-1 min-w-[200px] py-4 px-6 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-2xl font-semibold hover:from-green-600 hover:to-emerald-700 transition-all flex items-center justify-center gap-2 shadow-lg shadow-green-600/30"
                             >
                                 <CalendarIcon className="w-5 h-5" />
                                 Export to Calendar
@@ -678,8 +740,14 @@
                         </div>
 
                         {tasks.length === 0 ? (
-                            <div className="text-center py-12">
-                                <p className="text-purple-300 text-lg">No tasks yet. Go back and record some tasks!</p>
+                            <div className="text-center py-20">
+                                <div className="glass-dark rounded-3xl p-12 max-w-md mx-auto">
+                                    <svg className="w-20 h-20 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    </svg>
+                                    <p className="text-gray-400 text-lg">No tasks yet</p>
+                                    <p className="text-gray-500 text-sm mt-2">Go back and record some tasks!</p>
+                                </div>
                             </div>
                         ) : (
                             <div className="space-y-4">
