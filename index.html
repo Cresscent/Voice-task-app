@@ -741,10 +741,6 @@
                 setScreen('voice');
             };
 
-            const viewTasks = () => {
-                setScreen('tasks');
-            };
-
             return (
                 <>
                     {screen === 'voice' && (
@@ -752,8 +748,6 @@
                             onGenerateTasks={generateTasks}
                             transcript={transcript}
                             setTranscript={setTranscript}
-                            onViewTasks={viewTasks}
-                            hasExistingTasks={tasks.length > 0}
                         />
                     )}
 
