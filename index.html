@@ -16,12 +16,6 @@
         .pulse-ring {
             animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
         }
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        .animate-spin {
-            animation: spin 1s linear infinite;
-        }
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-purple-800">
@@ -30,7 +24,108 @@
     <script type="text/babel">
         const { useState, useEffect, useRef, useCallback } = React;
 
-        // Icons as components
+        // Task extraction function using pattern matching
+        function extractTasksFromText(text) {
+            const tasks = [];
+            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+            
+            // Action words that indicate tasks
+            const actionWords = ['need to', 'have to', 'should', 'must', 'want to', 'going to', 'plan to', 'will', 'got to'];
+            const timeKeywords = {
+                morning: ['morning', 'am', 'breakfast', 'early'],
+                afternoon: ['afternoon', 'lunch', 'pm', '1pm', '2pm', '3pm', '4pm'],
+                evening: ['evening', 'night', 'dinner', 'late', '5pm', '6pm', '7pm', '8pm']
+            };
+            const urgencyKeywords = {
+                high: ['urgent', 'asap', 'immediately', 'critical', 'important', 'must', 'deadline', 'today'],
+                medium: ['soon', 'should', 'need to', 'tomorrow'],
+                low: ['eventually', 'sometime', 'when', 'maybe', 'could']
+            };
+
+            sentences.forEach((sentence, index) => {
+                const lowerSentence = sentence.toLowerCase().trim();
+                
+                // Check if sentence contains action words
+                const hasAction = actionWords.some(word => lowerSentence.includes(word));
+                
+                if (hasAction || lowerSentence.length > 10) {
+                    // Extract the main task
+                    let title = sentence.trim();
+                    
+                    // Remove common prefixes
+                    actionWords.forEach(word => {
+                        const regex = new RegExp(`^(i\\s+)?(${word})\\s+`, 'i');
+                        title = title.replace(regex, '');
+                    });
+                    
+                    // Capitalize first letter
+                    title = title.charAt(0).toUpperCase() + title.slice(1);
+                    
+                    // Determine suggested time
+                    let suggestedTime = 'afternoon';
+                    for (const [time, keywords] of Object.entries(timeKeywords)) {
+                        if (keywords.some(kw => lowerSentence.includes(kw))) {
+                            suggestedTime = time;
+                            break;
+                        }
+                    }
+                    
+                    // Determine priority
+                    let priority = 'medium';
+                    for (const [level, keywords] of Object.entries(urgencyKeywords)) {
+                        if (keywords.some(kw => lowerSentence.includes(kw))) {
+                            priority = level;
+                            break;
+                        }
+                    }
+                    
+                    // Estimate duration based on complexity
+                    let estimatedDuration = 30;
+                    if (lowerSentence.includes('quick') || lowerSentence.includes('brief')) {
+                        estimatedDuration = 15;
+                    } else if (lowerSentence.includes('long') || lowerSentence.includes('detailed')) {
+                        estimatedDuration = 60;
+                    } else if (title.length > 50) {
+                        estimatedDuration = 45;
+                    }
+                    
+                    // Extract time if mentioned
+                    const timeMatch = lowerSentence.match(/(\d{1,2}):?(\d{2})?\s*(am|pm)?/i);
+                    const dateMatch = lowerSentence.match(/(today|tomorrow|monday|tuesday|wednesday|thursday|friday|saturday|sunday)/i);
+                    
+                    tasks.push({
+                        id: Date.now() + index,
+                        title: title.length > 80 ? title.substring(0, 77) + '...' : title,
+                        description: sentence.trim(),
+                        estimatedDuration,
+                        priority,
+                        suggestedTime,
+                        completed: false,
+                        scheduledDate: '',
+                        scheduledTime: ''
+                    });
+                }
+            });
+
+            // If no tasks found, create one general task
+            if (tasks.length === 0 && text.trim().length > 0) {
+                tasks.push({
+                    id: Date.now(),
+                    title: text.substring(0, 50) + (text.length > 50 ? '...' : ''),
+                    description: text.trim(),
+                    estimatedDuration: 30,
+                    priority: 'medium',
+                    suggestedTime: 'afternoon',
+                    completed: false,
+                    scheduledDate: '',
+                    scheduledTime: ''
+                });
+            }
+
+            return tasks;
+        }
+
+        // Icons
         const MicrophoneIcon = ({ className }) => (
             <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
@@ -85,7 +180,7 @@
             </svg>
         );
 
-        // Voice Input Screen Component
+        // Voice Input Screen
         function VoiceInputScreen({ onGenerateTasks, transcript, setTranscript }) {
             const [isRecording, setIsRecording] = useState(false);
             const [currentText, setCurrentText] = useState('');
@@ -97,7 +192,7 @@
                 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
                 if (!SpeechRecognition) {
                     setSpeechSupported(false);
-                    setError('Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.');
+                    setError('Speech recognition not supported. Please use Chrome, Edge, or Safari.');
                 }
             }, []);
 
@@ -142,19 +237,18 @@
                     if (event.error === 'not-allowed') {
                         setError('Microphone access denied. Please allow microphone access and try again.');
                     } else if (event.error === 'no-speech') {
-                        // Don't show error for no speech, just restart
+                        // Don't show error for no speech
                     } else {
                         setError(`Speech recognition error: ${event.error}`);
                     }
                 };
 
                 recognition.onend = () => {
-                    // Auto-restart if still supposed to be recording
                     if (recognitionRef.current && isRecording) {
                         try {
                             recognition.start();
                         } catch (e) {
-                            // Ignore restart errors
+                            // Ignore
                         }
                     } else {
                         setIsRecording(false);
@@ -190,24 +284,21 @@
             return (
                 <div className="min-h-screen flex flex-col items-center justify-center p-6">
                     <div className="max-w-2xl w-full">
-                        {/* Header */}
                         <div className="text-center mb-8">
                             <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
                                 Voice Task Manager
                             </h1>
                             <p className="text-purple-200 text-lg">
-                                Speak your tasks naturally and let AI organize them for you
+                                Speak your tasks naturally and organize them instantly
                             </p>
                         </div>
 
-                        {/* Error Display */}
                         {error && (
                             <div className="mb-6 p-4 bg-red-500/20 border border-red-500 rounded-lg text-red-200 text-center">
                                 {error}
                             </div>
                         )}
 
-                        {/* Microphone Button */}
                         <div className="flex justify-center mb-8">
                             <div className="relative">
                                 {isRecording && (
@@ -234,14 +325,12 @@
                             </div>
                         </div>
 
-                        {/* Recording Status */}
                         <div className="text-center mb-6">
                             <p className={`text-lg font-medium ${isRecording ? 'text-red-400' : 'text-purple-300'}`}>
                                 {isRecording ? '🔴 Recording...' : 'Tap to start recording'}
                             </p>
                         </div>
 
-                        {/* Current Speech */}
                         {currentText && (
                             <div className="mb-6 p-4 bg-white/10 backdrop-blur rounded-lg border border-purple-400/30">
                                 <p className="text-purple-200 text-sm mb-2">Currently hearing:</p>
@@ -249,7 +338,6 @@
                             </div>
                         )}
 
-                        {/* Transcript Area */}
                         <div className="mb-6">
                             <label className="block text-purple-200 text-sm font-medium mb-2">
                                 Conversation Transcript
@@ -265,7 +353,6 @@
                             />
                         </div>
 
-                        {/* Generate Tasks Button */}
                         <button
                             onClick={onGenerateTasks}
                             disabled={!transcript.trim()}
@@ -279,7 +366,6 @@
                             Generate Task List
                         </button>
 
-                        {/* Help Text */}
                         <p className="text-center text-purple-300/70 text-sm mt-4">
                             Try saying: "I need to finish the report by Friday, call mom tomorrow morning, and buy groceries this evening"
                         </p>
@@ -307,7 +393,6 @@
             return (
                 <div className={`p-4 rounded-lg border-2 transition-all duration-300 ${priorityColors[task.priority]} ${isScheduled ? 'ring-2 ring-green-400 ring-offset-2 ring-offset-purple-900' : ''}`}>
                     <div className="flex items-start gap-3">
-                        {/* Checkbox */}
                         <button
                             onClick={() => onUpdate({ ...task, completed: !task.completed })}
                             className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-1 transition-all ${
@@ -319,7 +404,6 @@
                             {task.completed && <CheckIcon className="w-4 h-4 text-white" />}
                         </button>
 
-                        {/* Content */}
                         <div className="flex-1 min-w-0">
                             <div className="flex items-start justify-between gap-2 mb-2">
                                 <h3 className={`font-semibold text-white ${task.completed ? 'line-through opacity-50' : ''}`}>
@@ -334,7 +418,6 @@
                                 {task.description}
                             </p>
 
-                            {/* Meta Info */}
                             <div className="flex flex-wrap gap-3 text-sm text-purple-300 mb-3">
                                 <span className="flex items-center gap-1">
                                     <ClockIcon className="w-4 h-4" />
@@ -346,7 +429,6 @@
                                 </span>
                             </div>
 
-                            {/* Scheduling Inputs */}
                             <div className="flex flex-wrap gap-2 items-center">
                                 <div className="flex items-center gap-2">
                                     <CalendarIcon className="w-4 h-4 text-purple-400" />
@@ -374,7 +456,6 @@
                             </div>
                         </div>
 
-                        {/* Delete Button */}
                         <button
                             onClick={() => onDelete(task.id)}
                             className="p-2 text-purple-400 hover:text-red-400 transition-colors flex-shrink-0"
@@ -386,25 +467,23 @@
             );
         }
 
-        // Task Management Screen Component
+        // Task Management Screen
         function TaskManagementScreen({ tasks, setTasks, onBack }) {
             const autoScheduleAll = () => {
                 const today = new Date();
                 let currentDate = new Date(today);
-                let currentHour = 9; // Start at 9 AM
+                let currentHour = 9;
                 let currentMinute = 0;
 
                 const updatedTasks = tasks.map(task => {
-                    // Skip already scheduled or completed tasks
                     if ((task.scheduledDate && task.scheduledTime) || task.completed) {
                         return task;
                     }
 
-                    // Check if we need to move to next day
                     const endMinute = currentMinute + task.estimatedDuration;
                     const endHour = currentHour + Math.floor(endMinute / 60);
 
-                    if (endHour >= 18) { // After 6 PM
+                    if (endHour >= 18) {
                         currentDate.setDate(currentDate.getDate() + 1);
                         currentHour = 9;
                         currentMinute = 0;
@@ -413,7 +492,6 @@
                     const scheduledDate = currentDate.toISOString().split('T')[0];
                     const scheduledTime = `${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
 
-                    // Update time for next task (duration + 15 min buffer)
                     const totalMinutes = currentMinute + task.estimatedDuration + 15;
                     currentHour += Math.floor(totalMinutes / 60);
                     currentMinute = totalMinutes % 60;
@@ -455,7 +533,7 @@
                     'METHOD:PUBLISH'
                 ];
 
-                scheduledTasks.forEach((task, index) => {
+                scheduledTasks.forEach((task) => {
                     const startDT = formatDate(task.scheduledDate, task.scheduledTime);
                     const endDT = addMinutes(task.scheduledDate, task.scheduledTime, task.estimatedDuration);
                     const uid = `task-${task.id}-${Date.now()}@voicetaskmanager`;
@@ -500,7 +578,6 @@
             return (
                 <div className="min-h-screen p-6">
                     <div className="max-w-4xl mx-auto">
-                        {/* Header */}
                         <div className="flex items-center justify-between mb-8">
                             <button
                                 onClick={onBack}
@@ -513,7 +590,6 @@
                             <div className="w-20"></div>
                         </div>
 
-                        {/* Stats */}
                         <div className="grid grid-cols-3 gap-4 mb-6">
                             <div className="bg-white/10 backdrop-blur rounded-lg p-4 text-center">
                                 <p className="text-3xl font-bold text-white">{tasks.length}</p>
@@ -529,7 +605,6 @@
                             </div>
                         </div>
 
-                        {/* Action Buttons */}
                         <div className="flex flex-wrap gap-4 mb-6">
                             <button
                                 onClick={autoScheduleAll}
@@ -547,7 +622,6 @@
                             </button>
                         </div>
 
-                        {/* Task List */}
                         {tasks.length === 0 ? (
                             <div className="text-center py-12">
                                 <p className="text-purple-300 text-lg">No tasks yet. Go back and record some tasks!</p>
@@ -569,167 +643,16 @@
             );
         }
 
-        // Loading Spinner Component
-        function LoadingSpinner() {
-            return (
-                <div className="min-h-screen flex flex-col items-center justify-center p-6">
-                    <div className="text-center">
-                        <div className="relative w-20 h-20 mx-auto mb-6">
-                            <div className="absolute inset-0 border-4 border-purple-500/30 rounded-full"></div>
-                            <div className="absolute inset-0 border-4 border-transparent border-t-purple-500 rounded-full animate-spin"></div>
-                        </div>
-                        <h2 className="text-2xl font-bold text-white mb-2">Analyzing Your Tasks</h2>
-                        <p className="text-purple-300">AI is extracting and organizing your tasks...</p>
-                    </div>
-                </div>
-            );
-        }
-
-        // API Key Modal Component
-        function ApiKeyModal({ onSubmit, error }) {
-            const [apiKey, setApiKey] = useState('');
-
-            const handleSubmit = (e) => {
-                e.preventDefault();
-                if (apiKey.trim()) {
-                    onSubmit(apiKey.trim());
-                }
-            };
-
-            return (
-                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-6 z-50">
-                    <div className="bg-purple-900 border border-purple-500 rounded-xl p-6 max-w-md w-full">
-                        <h2 className="text-xl font-bold text-white mb-4">Enter Anthropic API Key</h2>
-                        <p className="text-purple-300 text-sm mb-4">
-                            Your API key is stored only in your browser session and never sent to any server except Anthropic's API.
-                        </p>
-                        {error && (
-                            <div className="mb-4 p-3 bg-red-500/20 border border-red-500 rounded-lg text-red-200 text-sm">
-                                {error}
-                            </div>
-                        )}
-                        <form onSubmit={handleSubmit}>
-                            <input
-                                type="password"
-                                value={apiKey}
-                                onChange={(e) => setApiKey(e.target.value)}
-                                placeholder="sk-ant-api03-..."
-                                className="w-full p-3 bg-white/10 border border-purple-400/30 rounded-lg text-white placeholder-purple-300/50 focus:outline-none focus:ring-2 focus:ring-purple-400 mb-4"
-                            />
-                            <button
-                                type="submit"
-                                disabled={!apiKey.trim()}
-                                className={`w-full py-3 rounded-lg font-semibold transition-all ${
-                                    apiKey.trim()
-                                        ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600'
-                                        : 'bg-gray-600 text-gray-400 cursor-not-allowed'
-                                }`}
-                            >
-                                Save API Key
-                            </button>
-                        </form>
-                        <p className="text-purple-400 text-xs mt-4 text-center">
-                            Get your API key at{' '}
-                            <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-purple-300">
-                                console.anthropic.com
-                            </a>
-                        </p>
-                    </div>
-                </div>
-            );
-        }
-
         // Main App Component
         function App() {
-            const [screen, setScreen] = useState('voice'); // 'voice', 'loading', 'tasks'
+            const [screen, setScreen] = useState('voice');
             const [transcript, setTranscript] = useState('');
             const [tasks, setTasks] = useState([]);
-            const [apiKey, setApiKey] = useState(() => sessionStorage.getItem('anthropic_api_key') || '');
-            const [showApiKeyModal, setShowApiKeyModal] = useState(false);
-            const [apiError, setApiError] = useState('');
 
-            const handleApiKeySubmit = (key) => {
-                setApiKey(key);
-                sessionStorage.setItem('anthropic_api_key', key);
-                setShowApiKeyModal(false);
-                setApiError('');
-            };
-
-            const generateTasks = async () => {
-                if (!apiKey) {
-                    setShowApiKeyModal(true);
-                    return;
-                }
-
-                setScreen('loading');
-                setApiError('');
-
-                try {
-                    const response = await fetch('https://api.anthropic.com/v1/messages', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'x-api-key': apiKey,
-                            'anthropic-version': '2023-06-01',
-                            'anthropic-dangerous-direct-browser-access': 'true'
-                        },
-                        body: JSON.stringify({
-                            model: 'claude-sonnet-4-20250514',
-                            max_tokens: 2048,
-                            messages: [{
-                                role: 'user',
-                                content: `Analyze this conversation and extract actionable tasks with time estimates. For each task, provide:
-- title: clear task name
-- description: brief description
-- estimatedDuration: time in minutes (be realistic)
-- priority: high, medium, or low
-- suggestedTime: suggested time of day (morning, afternoon, evening)
-
-Conversation:
-${transcript}
-
-Respond ONLY with a JSON array of tasks, no preamble or markdown:
-[{"title": "...", "description": "...", "estimatedDuration": 30, "priority": "high", "suggestedTime": "morning"}]`
-                            }]
-                        })
-                    });
-
-                    if (!response.ok) {
-                        const errorData = await response.json().catch(() => ({}));
-                        if (response.status === 401) {
-                            setApiError('Invalid API key. Please check and try again.');
-                            setShowApiKeyModal(true);
-                            setScreen('voice');
-                            return;
-                        }
-                        throw new Error(errorData.error?.message || `API error: ${response.status}`);
-                    }
-
-                    const data = await response.json();
-                    let content = data.content[0].text;
-
-                    // Strip markdown code fences if present
-                    content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-
-                    const extractedTasks = JSON.parse(content);
-
-                    // Add IDs to tasks
-                    const tasksWithIds = extractedTasks.map((task, index) => ({
-                        ...task,
-                        id: Date.now() + index,
-                        completed: false,
-                        scheduledDate: '',
-                        scheduledTime: ''
-                    }));
-
-                    setTasks(tasksWithIds);
-                    setScreen('tasks');
-                } catch (error) {
-                    console.error('Error generating tasks:', error);
-                    setApiError(error.message || 'Failed to generate tasks. Please try again.');
-                    setScreen('voice');
-                    alert(`Error: ${error.message || 'Failed to generate tasks. Please try again.'}`);
-                }
+            const generateTasks = () => {
+                const extractedTasks = extractTasksFromText(transcript);
+                setTasks(extractedTasks);
+                setScreen('tasks');
             };
 
             const handleBack = () => {
@@ -738,10 +661,6 @@ Respond ONLY with a JSON array of tasks, no preamble or markdown:
 
             return (
                 <>
-                    {showApiKeyModal && (
-                        <ApiKeyModal onSubmit={handleApiKeySubmit} error={apiError} />
-                    )}
-
                     {screen === 'voice' && (
                         <VoiceInputScreen
                             onGenerateTasks={generateTasks}
@@ -749,8 +668,6 @@ Respond ONLY with a JSON array of tasks, no preamble or markdown:
                             setTranscript={setTranscript}
                         />
                     )}
-
-                    {screen === 'loading' && <LoadingSpinner />}
 
                     {screen === 'tasks' && (
                         <TaskManagementScreen
@@ -763,7 +680,6 @@ Respond ONLY with a JSON array of tasks, no preamble or markdown:
             );
         }
 
-        // Render the app
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
