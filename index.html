@@ -27,30 +27,43 @@
         // Task extraction function using pattern matching
         function extractTasksFromText(text) {
             const tasks = [];
-            const sentences = text.split(/[.!?]+/).filter(s => s.trim().length > 0);
+            
+            // Split by common separators: periods, commas, "and", "then", "also"
+            const separators = /[.,;]|\s+and\s+|\s+then\s+|\s+also\s+|\s+plus\s+|\s+after that\s+/gi;
+            let segments = text.split(separators).filter(s => s.trim().length > 5);
+            
+            // If we got very few segments, try splitting by sentence endings
+            if (segments.length <= 1) {
+                segments = text.split(/[.!?]+/).filter(s => s.trim().length > 5);
+            }
             
             // Action words that indicate tasks
-            const actionWords = ['need to', 'have to', 'should', 'must', 'want to', 'going to', 'plan to', 'will', 'got to'];
+            const actionWords = ['need to', 'have to', 'should', 'must', 'want to', 'going to', 'plan to', 'will', 'got to', 'gotta', 'gonna'];
             const timeKeywords = {
-                morning: ['morning', 'am', 'breakfast', 'early'],
-                afternoon: ['afternoon', 'lunch', 'pm', '1pm', '2pm', '3pm', '4pm'],
-                evening: ['evening', 'night', 'dinner', 'late', '5pm', '6pm', '7pm', '8pm']
+                morning: ['morning', 'am', 'breakfast', 'early', '8am', '9am', '10am'],
+                afternoon: ['afternoon', 'lunch', '12pm', '1pm', '2pm', '3pm', '4pm'],
+                evening: ['evening', 'night', 'dinner', 'late', '5pm', '6pm', '7pm', '8pm', '9pm']
             };
             const urgencyKeywords = {
-                high: ['urgent', 'asap', 'immediately', 'critical', 'important', 'must', 'deadline', 'today'],
-                medium: ['soon', 'should', 'need to', 'tomorrow'],
-                low: ['eventually', 'sometime', 'when', 'maybe', 'could']
+                high: ['urgent', 'asap', 'immediately', 'critical', 'important', 'must', 'deadline', 'today', 'right now'],
+                medium: ['soon', 'should', 'need to', 'tomorrow', 'this week'],
+                low: ['eventually', 'sometime', 'when', 'maybe', 'could', 'later']
             };
 
-            sentences.forEach((sentence, index) => {
-                const lowerSentence = sentence.toLowerCase().trim();
+            segments.forEach((segment, index) => {
+                const trimmedSegment = segment.trim();
+                const lowerSegment = trimmedSegment.toLowerCase();
                 
-                // Check if sentence contains action words
-                const hasAction = actionWords.some(word => lowerSentence.includes(word));
+                // Skip very short segments
+                if (trimmedSegment.length < 5) return;
                 
-                if (hasAction || lowerSentence.length > 10) {
+                // Check if segment contains action words or looks like a task
+                const hasAction = actionWords.some(word => lowerSegment.includes(word));
+                const hasVerb = /\b(call|email|send|buy|finish|complete|write|read|review|meet|schedule|book|order|prepare|check|update|create|make|do|get|take|go)\b/i.test(lowerSegment);
+                
+                if (hasAction || hasVerb || trimmedSegment.length > 10) {
                     // Extract the main task
-                    let title = sentence.trim();
+                    let title = trimmedSegment;
                     
                     // Remove common prefixes
                     actionWords.forEach(word => {
@@ -58,13 +71,16 @@
                         title = title.replace(regex, '');
                     });
                     
+                    // Remove "I" at the beginning
+                    title = title.replace(/^i\s+/i, '');
+                    
                     // Capitalize first letter
                     title = title.charAt(0).toUpperCase() + title.slice(1);
                     
                     // Determine suggested time
                     let suggestedTime = 'afternoon';
                     for (const [time, keywords] of Object.entries(timeKeywords)) {
-                        if (keywords.some(kw => lowerSentence.includes(kw))) {
+                        if (keywords.some(kw => lowerSegment.includes(kw))) {
                             suggestedTime = time;
                             break;
                         }
@@ -73,7 +89,7 @@
                     // Determine priority
                     let priority = 'medium';
                     for (const [level, keywords] of Object.entries(urgencyKeywords)) {
-                        if (keywords.some(kw => lowerSentence.includes(kw))) {
+                        if (keywords.some(kw => lowerSegment.includes(kw))) {
                             priority = level;
                             break;
                         }
@@ -81,22 +97,22 @@
                     
                     // Estimate duration based on complexity
                     let estimatedDuration = 30;
-                    if (lowerSentence.includes('quick') || lowerSentence.includes('brief')) {
+                    if (lowerSegment.includes('quick') || lowerSegment.includes('brief') || lowerSegment.includes('short')) {
                         estimatedDuration = 15;
-                    } else if (lowerSentence.includes('long') || lowerSentence.includes('detailed')) {
+                    } else if (lowerSegment.includes('long') || lowerSegment.includes('detailed') || lowerSegment.includes('thorough')) {
                         estimatedDuration = 60;
+                    } else if (lowerSegment.includes('call') || lowerSegment.includes('email')) {
+                        estimatedDuration = 20;
+                    } else if (lowerSegment.includes('meeting') || lowerSegment.includes('review')) {
+                        estimatedDuration = 45;
                     } else if (title.length > 50) {
                         estimatedDuration = 45;
                     }
                     
-                    // Extract time if mentioned
-                    const timeMatch = lowerSentence.match(/(\d{1,2}):?(\d{2})?\s*(am|pm)?/i);
-                    const dateMatch = lowerSentence.match(/(today|tomorrow|monday|tuesday|wednesday|thursday|friday|saturday|sunday)/i);
-                    
                     tasks.push({
-                        id: Date.now() + index,
+                        id: Date.now() + index + Math.random() * 1000,
                         title: title.length > 80 ? title.substring(0, 77) + '...' : title,
-                        description: sentence.trim(),
+                        description: trimmedSegment,
                         estimatedDuration,
                         priority,
                         suggestedTime,
@@ -107,22 +123,53 @@
                 }
             });
 
-            // If no tasks found, create one general task
-            if (tasks.length === 0 && text.trim().length > 0) {
-                tasks.push({
-                    id: Date.now(),
-                    title: text.substring(0, 50) + (text.length > 50 ? '...' : ''),
-                    description: text.trim(),
-                    estimatedDuration: 30,
-                    priority: 'medium',
-                    suggestedTime: 'afternoon',
-                    completed: false,
-                    scheduledDate: '',
-                    scheduledTime: ''
-                });
+            // Remove duplicate tasks (same title)
+            const uniqueTasks = [];
+            const seenTitles = new Set();
+            
+            tasks.forEach(task => {
+                const normalizedTitle = task.title.toLowerCase().trim();
+                if (!seenTitles.has(normalizedTitle)) {
+                    seenTitles.add(normalizedTitle);
+                    uniqueTasks.push(task);
+                }
+            });
+
+            // If no tasks found, try one more approach - split by line breaks
+            if (uniqueTasks.length === 0 && text.trim().length > 0) {
+                const lines = text.split(/\n+/).filter(s => s.trim().length > 5);
+                
+                if (lines.length > 1) {
+                    lines.forEach((line, index) => {
+                        uniqueTasks.push({
+                            id: Date.now() + index + Math.random() * 1000,
+                            title: line.trim().substring(0, 80),
+                            description: line.trim(),
+                            estimatedDuration: 30,
+                            priority: 'medium',
+                            suggestedTime: 'afternoon',
+                            completed: false,
+                            scheduledDate: '',
+                            scheduledTime: ''
+                        });
+                    });
+                } else {
+                    // Last resort: create one task
+                    uniqueTasks.push({
+                        id: Date.now(),
+                        title: text.substring(0, 50) + (text.length > 50 ? '...' : ''),
+                        description: text.trim(),
+                        estimatedDuration: 30,
+                        priority: 'medium',
+                        suggestedTime: 'afternoon',
+                        completed: false,
+                        scheduledDate: '',
+                        scheduledTime: ''
+                    });
+                }
             }
 
-            return tasks;
+            return uniqueTasks;
         }
 
         // Icons
