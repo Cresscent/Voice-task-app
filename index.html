@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voice Task Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(1.4); opacity: 0; }
+        }
+        .pulse-ring {
+            animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-purple-800">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef, useCallback } = React;
+
+        // Icons as components
+        const MicrophoneIcon = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+            </svg>
+        );
+
+        const StopIcon = ({ className }) => (
+            <svg className={className} fill="currentColor" viewBox="0 0 24 24">
+                <rect x="6" y="6" width="12" height="12" rx="2" />
+            </svg>
+        );
+
+        const ClockIcon = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        );
+
+        const SunIcon = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+        );
+
+        const CalendarIcon = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+        );
+
+        const TrashIcon = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+        );
+
+        const CheckIcon = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+        );
+
+        const SparklesIcon = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+            </svg>
+        );
+
+        const ArrowLeftIcon = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+        );
+
+        // Voice Input Screen Component
+        function VoiceInputScreen({ onGenerateTasks, transcript, setTranscript }) {
+            const [isRecording, setIsRecording] = useState(false);
+            const [currentText, setCurrentText] = useState('');
+            const [error, setError] = useState('');
+            const [speechSupported, setSpeechSupported] = useState(true);
+            const recognitionRef = useRef(null);
+
+            useEffect(() => {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                if (!SpeechRecognition) {
+                    setSpeechSupported(false);
+                    setError('Speech recognition is not supported in this browser. Please use Chrome, Edge, or Safari.');
+                }
+            }, []);
+
+            const startRecording = useCallback(() => {
+                setError('');
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+                if (!SpeechRecognition) {
+                    setError('Speech recognition not supported');
+                    return;
+                }
+
+                const recognition = new SpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+
+                recognition.onstart = () => {
+                    setIsRecording(true);
+                };
+
+                recognition.onresult = (event) => {
+                    let interimTranscript = '';
+                    let finalTranscript = '';
+
+                    for (let i = event.resultIndex; i < event.results.length; i++) {
+                        const result = event.results[i];
+                        if (result.isFinal) {
+                            finalTranscript += result[0].transcript + ' ';
+                        } else {
+                            interimTranscript += result[0].transcript;
+                        }
+                    }
+
+                    if (finalTranscript) {
+                        setTranscript(prev => prev + finalTranscript);
+                    }
+                    setCurrentText(interimTranscript);
+                };
+
+                recognition.onerror = (event) => {
+                    if (event.error === 'not-allowed') {
+                        setError('Microphone access denied. Please allow microphone access and try again.');
+                    } else if (event.error === 'no-speech') {
+                        // Don't show error for no speech, just restart
+                    } else {
+                        setError(`Speech recognition error: ${event.error}`);
+                    }
+                };
+
+                recognition.onend = () => {
+                    // Auto-restart if still supposed to be recording
+                    if (recognitionRef.current && isRecording) {
+                        try {
+                            recognition.start();
+                        } catch (e) {
+                            // Ignore restart errors
+                        }
+                    } else {
+                        setIsRecording(false);
+                    }
+                };
+
+                recognitionRef.current = recognition;
+
+                try {
+                    recognition.start();
+                } catch (e) {
+                    setError('Failed to start recording. Please try again.');
+                }
+            }, [isRecording, setTranscript]);
+
+            const stopRecording = useCallback(() => {
+                if (recognitionRef.current) {
+                    recognitionRef.current.stop();
+                    recognitionRef.current = null;
+                }
+                setIsRecording(false);
+                setCurrentText('');
+            }, []);
+
+            const toggleRecording = () => {
+                if (isRecording) {
+                    stopRecording();
+                } else {
+                    startRecording();
+                }
+            };
+
+            return (
+                <div className="min-h-screen flex flex-col items-center justify-center p-6">
+                    <div className="max-w-2xl w-full">
+                        {/* Header */}
+                        <div className="text-center mb-8">
+                            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                                Voice Task Manager
+                            </h1>
+                            <p className="text-purple-200 text-lg">
+                                Speak your tasks naturally and let AI organize them for you
+                            </p>
+                        </div>
+
+                        {/* Error Display */}
+                        {error && (
+                            <div className="mb-6 p-4 bg-red-500/20 border border-red-500 rounded-lg text-red-200 text-center">
+                                {error}
+                            </div>
+                        )}
+
+                        {/* Microphone Button */}
+                        <div className="flex justify-center mb-8">
+                            <div className="relative">
+                                {isRecording && (
+                                    <>
+                                        <div className="absolute inset-0 rounded-full bg-red-500 pulse-ring"></div>
+                                        <div className="absolute inset-0 rounded-full bg-red-500 pulse-ring" style={{ animationDelay: '0.5s' }}></div>
+                                    </>
+                                )}
+                                <button
+                                    onClick={toggleRecording}
+                                    disabled={!speechSupported}
+                                    className={`relative w-32 h-32 rounded-full flex items-center justify-center transition-all duration-300 transform hover:scale-105 ${
+                                        isRecording
+                                            ? 'bg-red-500 shadow-lg shadow-red-500/50'
+                                            : 'bg-gradient-to-br from-purple-500 to-indigo-600 shadow-lg shadow-purple-500/50 hover:shadow-purple-500/70'
+                                    } ${!speechSupported ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                >
+                                    {isRecording ? (
+                                        <StopIcon className="w-12 h-12 text-white" />
+                                    ) : (
+                                        <MicrophoneIcon className="w-12 h-12 text-white" />
+                                    )}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Recording Status */}
+                        <div className="text-center mb-6">
+                            <p className={`text-lg font-medium ${isRecording ? 'text-red-400' : 'text-purple-300'}`}>
+                                {isRecording ? '🔴 Recording...' : 'Tap to start recording'}
+                            </p>
+                        </div>
+
+                        {/* Current Speech */}
+                        {currentText && (
+                            <div className="mb-6 p-4 bg-white/10 backdrop-blur rounded-lg border border-purple-400/30">
+                                <p className="text-purple-200 text-sm mb-2">Currently hearing:</p>
+                                <p className="text-white italic">{currentText}</p>
+                            </div>
+                        )}
+
+                        {/* Transcript Area */}
+                        <div className="mb-6">
+                            <label className="block text-purple-200 text-sm font-medium mb-2">
+                                Conversation Transcript
+                            </label>
+                            <textarea
+                                value={transcript}
+                                onChange={(e) => setTranscript(e.target.value)}
+                                placeholder={speechSupported
+                                    ? "Your spoken words will appear here... You can also type directly."
+                                    : "Voice input not supported. Please type your tasks here."
+                                }
+                                className="w-full h-48 p-4 bg-white/10 backdrop-blur border border-purple-400/30 rounded-lg text-white placeholder-purple-300/50 focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none"
+                            />
+                        </div>
+
+                        {/* Generate Tasks Button */}
+                        <button
+                            onClick={onGenerateTasks}
+                            disabled={!transcript.trim()}
+                            className={`w-full py-4 rounded-lg font-semibold text-lg flex items-center justify-center gap-2 transition-all duration-300 ${
+                                transcript.trim()
+                                    ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600 shadow-lg hover:shadow-purple-500/50'
+                                    : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                            }`}
+                        >
+                            <SparklesIcon className="w-6 h-6" />
+                            Generate Task List
+                        </button>
+
+                        {/* Help Text */}
+                        <p className="text-center text-purple-300/70 text-sm mt-4">
+                            Try saying: "I need to finish the report by Friday, call mom tomorrow morning, and buy groceries this evening"
+                        </p>
+                    </div>
+                </div>
+            );
+        }
+
+        // Task Card Component
+        function TaskCard({ task, onUpdate, onDelete }) {
+            const priorityColors = {
+                high: 'bg-red-500/20 border-red-500',
+                medium: 'bg-yellow-500/20 border-yellow-500',
+                low: 'bg-blue-500/20 border-blue-500'
+            };
+
+            const priorityBadgeColors = {
+                high: 'bg-red-500 text-white',
+                medium: 'bg-yellow-500 text-black',
+                low: 'bg-blue-500 text-white'
+            };
+
+            const isScheduled = task.scheduledDate && task.scheduledTime;
+
+            return (
+                <div className={`p-4 rounded-lg border-2 transition-all duration-300 ${priorityColors[task.priority]} ${isScheduled ? 'ring-2 ring-green-400 ring-offset-2 ring-offset-purple-900' : ''}`}>
+                    <div className="flex items-start gap-3">
+                        {/* Checkbox */}
+                        <button
+                            onClick={() => onUpdate({ ...task, completed: !task.completed })}
+                            className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-1 transition-all ${
+                                task.completed
+                                    ? 'bg-green-500 border-green-500'
+                                    : 'border-purple-400 hover:border-purple-300'
+                            }`}
+                        >
+                            {task.completed && <CheckIcon className="w-4 h-4 text-white" />}
+                        </button>
+
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between gap-2 mb-2">
+                                <h3 className={`font-semibold text-white ${task.completed ? 'line-through opacity-50' : ''}`}>
+                                    {task.title}
+                                </h3>
+                                <span className={`px-2 py-0.5 rounded text-xs font-medium flex-shrink-0 ${priorityBadgeColors[task.priority]}`}>
+                                    {task.priority}
+                                </span>
+                            </div>
+
+                            <p className={`text-purple-200 text-sm mb-3 ${task.completed ? 'line-through opacity-50' : ''}`}>
+                                {task.description}
+                            </p>
+
+                            {/* Meta Info */}
+                            <div className="flex flex-wrap gap-3 text-sm text-purple-300 mb-3">
+                                <span className="flex items-center gap-1">
+                                    <ClockIcon className="w-4 h-4" />
+                                    {task.estimatedDuration} min
+                                </span>
+                                <span className="flex items-center gap-1">
+                                    <SunIcon className="w-4 h-4" />
+                                    {task.suggestedTime}
+                                </span>
+                            </div>
+
+                            {/* Scheduling Inputs */}
+                            <div className="flex flex-wrap gap-2 items-center">
+                                <div className="flex items-center gap-2">
+                                    <CalendarIcon className="w-4 h-4 text-purple-400" />
+                                    <input
+                                        type="date"
+                                        value={task.scheduledDate || ''}
+                                        onChange={(e) => onUpdate({ ...task, scheduledDate: e.target.value })}
+                                        className="bg-white/10 border border-purple-400/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                    />
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <ClockIcon className="w-4 h-4 text-purple-400" />
+                                    <input
+                                        type="time"
+                                        value={task.scheduledTime || ''}
+                                        onChange={(e) => onUpdate({ ...task, scheduledTime: e.target.value })}
+                                        className="bg-white/10 border border-purple-400/30 rounded px-2 py-1 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-400"
+                                    />
+                                </div>
+                                {isScheduled && (
+                                    <span className="px-2 py-1 bg-green-500/20 border border-green-500 rounded text-green-400 text-xs">
+                                        Scheduled
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Delete Button */}
+                        <button
+                            onClick={() => onDelete(task.id)}
+                            className="p-2 text-purple-400 hover:text-red-400 transition-colors flex-shrink-0"
+                        >
+                            <TrashIcon className="w-5 h-5" />
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        // Task Management Screen Component
+        function TaskManagementScreen({ tasks, setTasks, onBack }) {
+            const autoScheduleAll = () => {
+                const today = new Date();
+                let currentDate = new Date(today);
+                let currentHour = 9; // Start at 9 AM
+                let currentMinute = 0;
+
+                const updatedTasks = tasks.map(task => {
+                    // Skip already scheduled or completed tasks
+                    if ((task.scheduledDate && task.scheduledTime) || task.completed) {
+                        return task;
+                    }
+
+                    // Check if we need to move to next day
+                    const endMinute = currentMinute + task.estimatedDuration;
+                    const endHour = currentHour + Math.floor(endMinute / 60);
+
+                    if (endHour >= 18) { // After 6 PM
+                        currentDate.setDate(currentDate.getDate() + 1);
+                        currentHour = 9;
+                        currentMinute = 0;
+                    }
+
+                    const scheduledDate = currentDate.toISOString().split('T')[0];
+                    const scheduledTime = `${String(currentHour).padStart(2, '0')}:${String(currentMinute).padStart(2, '0')}`;
+
+                    // Update time for next task (duration + 15 min buffer)
+                    const totalMinutes = currentMinute + task.estimatedDuration + 15;
+                    currentHour += Math.floor(totalMinutes / 60);
+                    currentMinute = totalMinutes % 60;
+
+                    return {
+                        ...task,
+                        scheduledDate,
+                        scheduledTime
+                    };
+                });
+
+                setTasks(updatedTasks);
+            };
+
+            const generateICS = () => {
+                const scheduledTasks = tasks.filter(t => t.scheduledDate && t.scheduledTime && !t.completed);
+
+                if (scheduledTasks.length === 0) {
+                    alert('No scheduled tasks to export. Please schedule some tasks first.');
+                    return;
+                }
+
+                const formatDate = (dateStr, timeStr) => {
+                    const date = new Date(`${dateStr}T${timeStr}`);
+                    return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+                };
+
+                const addMinutes = (dateStr, timeStr, minutes) => {
+                    const date = new Date(`${dateStr}T${timeStr}`);
+                    date.setMinutes(date.getMinutes() + minutes);
+                    return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+                };
+
+                let icsContent = [
+                    'BEGIN:VCALENDAR',
+                    'VERSION:2.0',
+                    'PRODID:-//Voice Task Manager//EN',
+                    'CALSCALE:GREGORIAN',
+                    'METHOD:PUBLISH'
+                ];
+
+                scheduledTasks.forEach((task, index) => {
+                    const startDT = formatDate(task.scheduledDate, task.scheduledTime);
+                    const endDT = addMinutes(task.scheduledDate, task.scheduledTime, task.estimatedDuration);
+                    const uid = `task-${task.id}-${Date.now()}@voicetaskmanager`;
+                    const dtstamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+
+                    icsContent.push(
+                        'BEGIN:VEVENT',
+                        `UID:${uid}`,
+                        `DTSTAMP:${dtstamp}`,
+                        `DTSTART:${startDT}`,
+                        `DTEND:${endDT}`,
+                        `SUMMARY:${task.title}`,
+                        `DESCRIPTION:${task.description}\\nPriority: ${task.priority}\\nDuration: ${task.estimatedDuration} minutes`,
+                        'END:VEVENT'
+                    );
+                });
+
+                icsContent.push('END:VCALENDAR');
+
+                const blob = new Blob([icsContent.join('\r\n')], { type: 'text/calendar' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'tasks.ics';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            };
+
+            const updateTask = (updatedTask) => {
+                setTasks(tasks.map(t => t.id === updatedTask.id ? updatedTask : t));
+            };
+
+            const deleteTask = (taskId) => {
+                setTasks(tasks.filter(t => t.id !== taskId));
+            };
+
+            const completedCount = tasks.filter(t => t.completed).length;
+            const scheduledCount = tasks.filter(t => t.scheduledDate && t.scheduledTime).length;
+
+            return (
+                <div className="min-h-screen p-6">
+                    <div className="max-w-4xl mx-auto">
+                        {/* Header */}
+                        <div className="flex items-center justify-between mb-8">
+                            <button
+                                onClick={onBack}
+                                className="flex items-center gap-2 text-purple-300 hover:text-white transition-colors"
+                            >
+                                <ArrowLeftIcon className="w-5 h-5" />
+                                Back
+                            </button>
+                            <h1 className="text-2xl md:text-3xl font-bold text-white">Your Tasks</h1>
+                            <div className="w-20"></div>
+                        </div>
+
+                        {/* Stats */}
+                        <div className="grid grid-cols-3 gap-4 mb-6">
+                            <div className="bg-white/10 backdrop-blur rounded-lg p-4 text-center">
+                                <p className="text-3xl font-bold text-white">{tasks.length}</p>
+                                <p className="text-purple-300 text-sm">Total Tasks</p>
+                            </div>
+                            <div className="bg-white/10 backdrop-blur rounded-lg p-4 text-center">
+                                <p className="text-3xl font-bold text-green-400">{scheduledCount}</p>
+                                <p className="text-purple-300 text-sm">Scheduled</p>
+                            </div>
+                            <div className="bg-white/10 backdrop-blur rounded-lg p-4 text-center">
+                                <p className="text-3xl font-bold text-purple-400">{completedCount}</p>
+                                <p className="text-purple-300 text-sm">Completed</p>
+                            </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex flex-wrap gap-4 mb-6">
+                            <button
+                                onClick={autoScheduleAll}
+                                className="flex-1 min-w-[200px] py-3 px-6 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-lg font-semibold hover:from-purple-600 hover:to-indigo-600 transition-all flex items-center justify-center gap-2"
+                            >
+                                <ClockIcon className="w-5 h-5" />
+                                Auto-Schedule All
+                            </button>
+                            <button
+                                onClick={generateICS}
+                                className="flex-1 min-w-[200px] py-3 px-6 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-lg font-semibold hover:from-green-600 hover:to-emerald-600 transition-all flex items-center justify-center gap-2"
+                            >
+                                <CalendarIcon className="w-5 h-5" />
+                                Export to Calendar
+                            </button>
+                        </div>
+
+                        {/* Task List */}
+                        {tasks.length === 0 ? (
+                            <div className="text-center py-12">
+                                <p className="text-purple-300 text-lg">No tasks yet. Go back and record some tasks!</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-4">
+                                {tasks.map(task => (
+                                    <TaskCard
+                                        key={task.id}
+                                        task={task}
+                                        onUpdate={updateTask}
+                                        onDelete={deleteTask}
+                                    />
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        // Loading Spinner Component
+        function LoadingSpinner() {
+            return (
+                <div className="min-h-screen flex flex-col items-center justify-center p-6">
+                    <div className="text-center">
+                        <div className="relative w-20 h-20 mx-auto mb-6">
+                            <div className="absolute inset-0 border-4 border-purple-500/30 rounded-full"></div>
+                            <div className="absolute inset-0 border-4 border-transparent border-t-purple-500 rounded-full animate-spin"></div>
+                        </div>
+                        <h2 className="text-2xl font-bold text-white mb-2">Analyzing Your Tasks</h2>
+                        <p className="text-purple-300">AI is extracting and organizing your tasks...</p>
+                    </div>
+                </div>
+            );
+        }
+
+        // API Key Modal Component
+        function ApiKeyModal({ onSubmit, error }) {
+            const [apiKey, setApiKey] = useState('');
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if (apiKey.trim()) {
+                    onSubmit(apiKey.trim());
+                }
+            };
+
+            return (
+                <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-6 z-50">
+                    <div className="bg-purple-900 border border-purple-500 rounded-xl p-6 max-w-md w-full">
+                        <h2 className="text-xl font-bold text-white mb-4">Enter Anthropic API Key</h2>
+                        <p className="text-purple-300 text-sm mb-4">
+                            Your API key is stored only in your browser session and never sent to any server except Anthropic's API.
+                        </p>
+                        {error && (
+                            <div className="mb-4 p-3 bg-red-500/20 border border-red-500 rounded-lg text-red-200 text-sm">
+                                {error}
+                            </div>
+                        )}
+                        <form onSubmit={handleSubmit}>
+                            <input
+                                type="password"
+                                value={apiKey}
+                                onChange={(e) => setApiKey(e.target.value)}
+                                placeholder="sk-ant-api03-..."
+                                className="w-full p-3 bg-white/10 border border-purple-400/30 rounded-lg text-white placeholder-purple-300/50 focus:outline-none focus:ring-2 focus:ring-purple-400 mb-4"
+                            />
+                            <button
+                                type="submit"
+                                disabled={!apiKey.trim()}
+                                className={`w-full py-3 rounded-lg font-semibold transition-all ${
+                                    apiKey.trim()
+                                        ? 'bg-gradient-to-r from-purple-500 to-indigo-500 text-white hover:from-purple-600 hover:to-indigo-600'
+                                        : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                                }`}
+                            >
+                                Save API Key
+                            </button>
+                        </form>
+                        <p className="text-purple-400 text-xs mt-4 text-center">
+                            Get your API key at{' '}
+                            <a href="https://console.anthropic.com" target="_blank" rel="noopener noreferrer" className="underline hover:text-purple-300">
+                                console.anthropic.com
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            );
+        }
+
+        // Main App Component
+        function App() {
+            const [screen, setScreen] = useState('voice'); // 'voice', 'loading', 'tasks'
+            const [transcript, setTranscript] = useState('');
+            const [tasks, setTasks] = useState([]);
+            const [apiKey, setApiKey] = useState(() => sessionStorage.getItem('anthropic_api_key') || '');
+            const [showApiKeyModal, setShowApiKeyModal] = useState(false);
+            const [apiError, setApiError] = useState('');
+
+            const handleApiKeySubmit = (key) => {
+                setApiKey(key);
+                sessionStorage.setItem('anthropic_api_key', key);
+                setShowApiKeyModal(false);
+                setApiError('');
+            };
+
+            const generateTasks = async () => {
+                if (!apiKey) {
+                    setShowApiKeyModal(true);
+                    return;
+                }
+
+                setScreen('loading');
+                setApiError('');
+
+                try {
+                    const response = await fetch('https://api.anthropic.com/v1/messages', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'x-api-key': apiKey,
+                            'anthropic-version': '2023-06-01',
+                            'anthropic-dangerous-direct-browser-access': 'true'
+                        },
+                        body: JSON.stringify({
+                            model: 'claude-sonnet-4-20250514',
+                            max_tokens: 2048,
+                            messages: [{
+                                role: 'user',
+                                content: `Analyze this conversation and extract actionable tasks with time estimates. For each task, provide:
+- title: clear task name
+- description: brief description
+- estimatedDuration: time in minutes (be realistic)
+- priority: high, medium, or low
+- suggestedTime: suggested time of day (morning, afternoon, evening)
+
+Conversation:
+${transcript}
+
+Respond ONLY with a JSON array of tasks, no preamble or markdown:
+[{"title": "...", "description": "...", "estimatedDuration": 30, "priority": "high", "suggestedTime": "morning"}]`
+                            }]
+                        })
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({}));
+                        if (response.status === 401) {
+                            setApiError('Invalid API key. Please check and try again.');
+                            setShowApiKeyModal(true);
+                            setScreen('voice');
+                            return;
+                        }
+                        throw new Error(errorData.error?.message || `API error: ${response.status}`);
+                    }
+
+                    const data = await response.json();
+                    let content = data.content[0].text;
+
+                    // Strip markdown code fences if present
+                    content = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+
+                    const extractedTasks = JSON.parse(content);
+
+                    // Add IDs to tasks
+                    const tasksWithIds = extractedTasks.map((task, index) => ({
+                        ...task,
+                        id: Date.now() + index,
+                        completed: false,
+                        scheduledDate: '',
+                        scheduledTime: ''
+                    }));
+
+                    setTasks(tasksWithIds);
+                    setScreen('tasks');
+                } catch (error) {
+                    console.error('Error generating tasks:', error);
+                    setApiError(error.message || 'Failed to generate tasks. Please try again.');
+                    setScreen('voice');
+                    alert(`Error: ${error.message || 'Failed to generate tasks. Please try again.'}`);
+                }
+            };
+
+            const handleBack = () => {
+                setScreen('voice');
+            };
+
+            return (
+                <>
+                    {showApiKeyModal && (
+                        <ApiKeyModal onSubmit={handleApiKeySubmit} error={apiError} />
+                    )}
+
+                    {screen === 'voice' && (
+                        <VoiceInputScreen
+                            onGenerateTasks={generateTasks}
+                            transcript={transcript}
+                            setTranscript={setTranscript}
+                        />
+                    )}
+
+                    {screen === 'loading' && <LoadingSpinner />}
+
+                    {screen === 'tasks' && (
+                        <TaskManagementScreen
+                            tasks={tasks}
+                            setTasks={setTasks}
+                            onBack={handleBack}
+                        />
+                    )}
+                </>
+            );
+        }
+
+        // Render the app
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
